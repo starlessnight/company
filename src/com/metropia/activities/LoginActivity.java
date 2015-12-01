@@ -140,7 +140,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
       	
       	FacebookSdk.sdkInitialize(this);
         callbackManager = CallbackManager.Factory.create();
-      	locationService.init(this);
+      	locationService.init(this, 5000, 2500, 5, 1);
     }
     
     private AtomicBoolean cityChecked = new AtomicBoolean(false);

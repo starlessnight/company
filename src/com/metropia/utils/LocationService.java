@@ -32,25 +32,12 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
 		public void locationAcquired(Location location);
 	}
 	
-	private static LocationService instance;
-	
 	private Context context;
 	
 	/**
 	 * Last known current location
 	 */
 	private Location currentLocation;
-	
-	/*private LocationService(Context context) {
-		this.context = context;
-	}*/
-	
-	/*public static LocationService getInstance(Context context) {
-		if (instance == null) {
-			instance = new LocationService(context);
-		}
-		return instance;
-	}*/
 	
 	public void cacheCurrentLocation() {
 		requestCurrentLocation(null);
@@ -108,13 +95,18 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
     private LocationManager locationManager;
     
     public  boolean isGooglePlayServicesAvailable = false;
-    private boolean requestingLocationUpdates = false;
+    public boolean requestingLocationUpdates = false;
+    
+    int interval;
+    int fastestInterval;
+    int distance;
+    int num;
 	
 	public LocationService() {
 		
 	}
 	
-	public void init(Context context) {
+	public void init(Context context, int interval, int fastestInterval, int distance, int num) {
 		this.context = context;
 		isGooglePlayServicesAvailable = (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS);
 		if (isGooglePlayServicesAvailable) {
@@ -123,6 +115,11 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
 	        createLocationRequest();
 	        buildLocationSettingsRequest();
 		}
+		
+		this.interval = interval;
+		this.fastestInterval = fastestInterval;
+		this.distance = distance;
+		this.num = num;
 	}
 	
 	public void createGoogleApiClient() {
@@ -138,11 +135,11 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
 	
 	public void createLocationRequest() {
 		locationRequest = new LocationRequest();
-		locationRequest.setInterval(5000);
-		locationRequest.setFastestInterval(2500);
-		locationRequest.setSmallestDisplacement(5);
-		locationRequest.setNumUpdates(1);
+		locationRequest.setInterval(interval);
+		locationRequest.setFastestInterval(fastestInterval);
+		locationRequest.setSmallestDisplacement(distance);
 		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		if (num>0) locationRequest.setNumUpdates(num);
     }
 	
 	public void startLocationUpdates() {

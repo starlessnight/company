@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -101,6 +102,7 @@ import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.ImageUtil;
+import com.metropia.utils.LocationService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
@@ -121,7 +123,7 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 
-public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener {
+public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, OnClickListener {
 	
 	final static int INITIAL = 0;
 	final static int DURING_TRIP = 1;
@@ -168,23 +170,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		speaker = new Speaker(this);
 		speaker.init();
 		
-		// Define a listener that responds to location updates
-		locationListener = new LocationListener() {
-
-			public void onLocationChanged(Location location) {
-				preProcessLocation(location);
-			}
-			public void onStatusChanged(String provider, int status, Bundle extras) {}
-			public void onProviderEnabled(String provider) {}
-			public void onProviderDisabled(String provider) {}
-		};
-
-		gpsLocationListener = new com.google.android.gms.location.LocationListener() {
-			@Override
-			public void onLocationChanged(Location location) {
-				preProcessLocation(location);
-			}
-		};
 		
 		User user = User.getCurrentUser(PassengerActivity.this);
 		
@@ -204,13 +189,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
-
-		if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(PassengerActivity.this) == ConnectionResult.SUCCESS) {
-			requestingLocationUpdates = true;
-			createGoogleApiClient();
-			createLocationRequest();
-			buildLocationSettingsRequest();
-		}
+		
+		locationService.init(this, 1000, 1000, 0, -1);
 		
 		preparingDialog = new ProgressDialog(this, R.style.PopUpDialog);
     	preparingDialog.setTitle("Metropia");
@@ -281,7 +261,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	
 	
-	private void checkLastTrip(final Runnable cb) {
+	private void checkLastTrip() {
 		
 		findViewById(R.id.loading).setVisibility(View.VISIBLE);
 		new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this)).executeAsync(this, new ICallback() {
@@ -308,7 +288,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					public void run(Object... obj) {dialog.dismiss();}
 				});
 				
-				if (timeToNext.equals(0)) cb.run();
+				if (timeToNext.equals(0)) startTrip();
 				else dialog.show();
 			}
 		});
@@ -676,7 +656,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				}).execute(true);
 			}
 			
-			closeGPS();
+			locationService.closeGPS();
 		}
 	}
 	
@@ -716,46 +696,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		saveTrajectory(null);
 	}
 	
-	private GoogleApiClient googleApiClient;
-	private LocationRequest highAccuracyLocationRequest;
-	private boolean requestingLocationUpdates = false;
-	private LocationSettingsRequest locationSettingsRequest;
-	private Integer REQUEST_CHECK_SETTINGS = Integer.valueOf(1111);
-	private com.google.android.gms.location.LocationListener gpsLocationListener;
-
-	private void createGoogleApiClient() {
-		googleApiClient = new GoogleApiClient.Builder(PassengerActivity.this)
-				.addApi(LocationServices.API)
-				.addConnectionCallbacks(PassengerActivity.this)
-				.addOnConnectionFailedListener(PassengerActivity.this).build();
-	}
-
-	private void createLocationRequest() {
-		highAccuracyLocationRequest = new LocationRequest();
-		highAccuracyLocationRequest.setInterval(DebugOptionsActivity.getGpsUpdateInterval(this));
-		highAccuracyLocationRequest.setFastestInterval(1000);
-		highAccuracyLocationRequest.setSmallestDisplacement(0);
-		highAccuracyLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-	}
-
-	protected void buildLocationSettingsRequest() {
-		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-		builder.addLocationRequest(highAccuracyLocationRequest).setAlwaysShow(
-				true);
-		locationSettingsRequest = builder.build();
-	}
-
-	protected void checkLocationSettings() {
-		PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
-		result.setResultCallback(PassengerActivity.this);
-	}
-
-	protected void startLocationUpdates() {
-		LocationServices.FusedLocationApi.requestLocationUpdates(
-				googleApiClient, highAccuracyLocationRequest,
-				gpsLocationListener);
-	}
-	
 	/**
 	 * init skmap parameter
 	 */
@@ -778,39 +718,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(PassengerActivity.this, true));
 	}
 
-	private void prepareGPS() {
-		if (googleApiClient != null && requestingLocationUpdates) {
-			checkLocationSettings();
-		} else if (googleApiClient == null) {
-			closeGPS();
-			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-			if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-					&& locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.getGpsUpdateInterval(this), 5, locationListener);
-			} else {
-				SystemService.alertNoGPS(this, true);
-			}
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-		}
-	}
-
-	private void closeGPS() {
-		if (googleApiClient != null && googleApiClient.isConnected()) {
-			LocationServices.FusedLocationApi.removeLocationUpdates(
-					googleApiClient, gpsLocationListener).setResultCallback(
-					new ResultCallback<Status>() {
-						@Override
-						public void onResult(Status status) {
-							requestingLocationUpdates = true;
-						}
-					});
-		} else if (locationManager != null) {
-			try {
-				locationManager.removeUpdates(locationListener);
-			}
-			catch(Throwable t) {}
-		}
-	}
 	
 	private void cancelValidation() {
 		if (arrivalMsgTiggered.get()) {
@@ -985,7 +892,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				}
 			});
 			dialog.show();
-			closeGPS();
+		    locationService.closeGPS();
 		}
 	}
 	
@@ -1012,9 +919,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	protected void onStart() {
 		super.onStart();
 		GoogleAnalytics.getInstance(this).reportActivityStart(this);
-		if (googleApiClient != null) {
-			googleApiClient.connect();
-		}
+        locationService.connect();
 	}
 	
 	@Override
@@ -1050,11 +955,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	@Override
 	protected void onDestroy() {
 		unregisterReceiver(tripValidator);
-		closeGPS();
+		locationService.closeGPS();
 		remotePassengers = new ArrayList<Passenger>();
-		if (googleApiClient != null) {
-			googleApiClient.disconnect();
-		}
+        locationService.disconnect();
 		if (speaker!=null) speaker.shutdown();
 		hideNotification();
 		super.onDestroy();
@@ -1071,30 +974,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		speaker.onActivityResult(requestCode, resultCode, intent);
+        locationService.onActivityResult(requestCode, resultCode, intent);
+        
+		if (requestCode==LocationService.REQUEST_CHECK_SETTINGS && resultCode==Activity.RESULT_OK && checkGPSAndStart) checkLastTrip();
+        locationService.requestingLocationUpdates = true;
+		checkGPSAndStart = false;
 	}
-
-	@Override
-	public void onResult(LocationSettingsResult locationSettingsResult) {
-		final Status status = locationSettingsResult.getStatus();
-		switch (status.getStatusCode()) {
-			case LocationSettingsStatusCodes.SUCCESS:
-				startLocationUpdates();
-				break;
-			case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-				try {
-					status.startResolutionForResult(PassengerActivity.this,	REQUEST_CHECK_SETTINGS);
-				} catch (IntentSender.SendIntentException e) {}
-				break;
-			case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-				startLocationUpdates();
-				break;
-		}
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult arg0) {}
-	public void onConnected(Bundle arg0) {}
-	public void onConnectionSuspended(int arg0) {}
 
 	private Handler handler = new Handler();
 	private Runnable restoreRunnable = new Runnable() {
@@ -1110,52 +995,21 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		handler.postDelayed(restoreRunnable, 30000);
 	}
 
-	@Override
 	public void onActionZoom() {}
-
-	@Override
 	public void onAnnotationSelected(SKAnnotation arg0) {}
-
-	@Override
 	public void onBoundingBoxImageRendered(int arg0) {}
-
-	@Override
 	public void onCompassSelected() {}
-
-	@Override
 	public void onCurrentPositionSelected() {}
-
-	@Override
 	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
-
-	@Override
 	public void onDoubleTap(SKScreenPoint arg0) {}
-
-	@Override
 	public void onGLInitializationError(String arg0) {}
-
-	@Override
 	public void onInternationalisationCalled(int arg0) {}
-
-	@Override
 	public void onInternetConnectionNeeded() {}
-
-	@Override
 	public void onLongPress(SKScreenPoint point) {}
-
-	@Override
 	public void onMapActionDown(SKScreenPoint arg0) {}
-
-	@Override
 	public void onMapActionUp(SKScreenPoint arg0) {}
-
-	@Override
 	public void onMapPOISelected(SKMapPOI arg0) {}
-
-	@Override
 	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {}
-
-	@Override
 	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
 
 	@Override
@@ -1210,12 +1064,55 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	        loc.setAccuracy(cacheLoc.lastAccuracy);
 	        loc.setBearing(cacheLoc.lastHeading);
 	        locationChanged(loc);
-	        if (!arrived.get()) prepareGPS();
 		}
+        if (!arrived.get()) locationService.prepareGPS();
 	}
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+	
+	
+	
+	
+	
+	
+	
+	boolean locationRequested = false;
+	boolean checkGPSAndStart = false;
+	LocationService locationService = new LocationService() {
+
+		@Override
+		public void onLocationChanged(Location location) {
+			preProcessLocation(location);
+		}
+
+		@Override
+		public void onResult(LocationSettingsResult locationSettingsResult) {
+
+			final Status status = locationSettingsResult.getStatus();
+			switch (status.getStatusCode()) {
+				case LocationSettingsStatusCodes.SUCCESS:
+					startLocationUpdates();
+					if (checkGPSAndStart) checkLastTrip();
+					break;
+				case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+					try {
+						if (!locationRequested) status.startResolutionForResult(PassengerActivity.this,	REQUEST_CHECK_SETTINGS);
+						locationRequested = true;
+					} catch (IntentSender.SendIntentException e) {}
+					break;
+				case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+					startLocationUpdates();
+					break;
+			}
+			
+		}
+		public void onProviderDisabled(String provider) {}
+		public void onProviderEnabled(String provider) {}
+		public void onStatusChanged(String provider, int status, Bundle extras) {}
+	};
+	
+	
 
 	@Override
 	public void onClick(final View v) {
@@ -1239,12 +1136,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					cancelValidation();
 				}
 				else {
-					Runnable startTrip = new Runnable() {
-						public void run() {
-							startTrip();
-						}
-					};
-					checkLastTrip(startTrip);
+					locationRequested = false;
+					checkGPSAndStart = true;
+				    locationService.prepareGPS();
 				}
 			break;
 			case R.id.close:
