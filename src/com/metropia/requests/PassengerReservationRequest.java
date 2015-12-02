@@ -95,20 +95,7 @@ public class PassengerReservationRequest extends Request {
 		
 		new AsyncTask<Void, Void, Long>() {
 			
-			CancelableProgressDialog dialog;
 			ExceptionHandlingService es = new ExceptionHandlingService(ctx);
-			
-			@Override
-			protected void onPreExecute() {
-				dialog = new CancelableProgressDialog(ctx, "Preparing...");
-				dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-					@Override
-					public void onClickNegativeButton() {
-						((Activity)ctx).finish();
-					}
-				});
-				dialog.show();
-			}
 
 			@Override
 			protected Long doInBackground(Void... params) {
@@ -125,9 +112,6 @@ public class PassengerReservationRequest extends Request {
 	
 			@Override
 			protected void onPostExecute(final Long reserId) {
-				if(dialog.isShowing()) {
-					dialog.dismiss();
-				}
 				if(es.hasExceptions()) {
 					es.reportExceptions();
 				}

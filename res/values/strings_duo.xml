@@ -36,6 +36,8 @@
 	<string name="duoFailDurationMsg">Last %1$s+ minutes \nYour trip: %2$s</string>
 	<string name="duoFailDistanceMsg">Exceed %1$s miles \nYour trip: %2$s</string>
 	
+	<string name="duoFailedStartDialogMsg">We could not start your trip due to a slow connection.\n\nPlease tap \"Start My Trip\" to try again.</string>
+	
 	<plurals name="minute">
         <item quantity="one">1 minute</item>
         <item quantity="other">%d minutes</item>

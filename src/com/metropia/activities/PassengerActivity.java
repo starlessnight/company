@@ -260,10 +260,18 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 	
 	
-	
+	CancelableProgressDialog startingDialog;
+	boolean failedStart = false;
 	private void checkLastTrip() {
 		
-		findViewById(R.id.loading).setVisibility(View.VISIBLE);
+		startingDialog = new CancelableProgressDialog(this, "Preparing...");
+		startingDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+			@Override
+			public void onClickNegativeButton() {
+				finish();
+			}
+		});
+		startingDialog.show();
 		new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this)).executeAsync(this, new ICallback() {
 
 			@Override
@@ -273,23 +281,24 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				
 				if (timeToNext==null) {
-					NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "Please check your internet setting or try again later.");
-					dialog.setTitle("No internet connection");
-					dialog.show();
-					return;
+					failedStart = true;
+					startTrip();
+				}
+				else {
+					String timeToNextStr = getResources().getQuantityString(R.plurals.minute, timeToNext, timeToNext);
+					String timeStr = getResources().getQuantityString(R.plurals.minute, 15-timeToNext, 15-timeToNext);
+					
+					final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
+					dialog.setContent(getString(R.string.duoTripIntervalCheckTile, timeStr), getString(R.string.duoTripIntervalCheckMsg, timeToNextStr));
+					dialog.addButton("OK", new ICallback() {
+						public void run(Object... obj) {dialog.dismiss();}
+					});
+					
+
+					if (timeToNext.equals(0)) startTrip();
+					else dialog.show();
 				}
 				
-				String timeToNextStr = getResources().getQuantityString(R.plurals.minute, timeToNext, timeToNext);
-				String timeStr = getResources().getQuantityString(R.plurals.minute, 15-timeToNext, 15-timeToNext);
-				
-				final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
-				dialog.setContent(getString(R.string.duoTripIntervalCheckTile, timeStr), getString(R.string.duoTripIntervalCheckMsg, timeToNextStr));
-				dialog.addButton("OK", new ICallback() {
-					public void run(Object... obj) {dialog.dismiss();}
-				});
-				
-				if (timeToNext.equals(0)) startTrip();
-				else dialog.show();
 			}
 		});
 		
@@ -302,9 +311,24 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			public void run(Object... obj) {
 				final long reserId = (Long) obj[0];
-				if (isFinishing() || reserId==-1) return;
+				if (isFinishing()) return;
+				if (reserId==-1 || failedStart) {
+					failedStart = false;
+					final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
+					dialog.setContent("Please Try Again", getResources().getString(R.string.duoFailedStartDialogMsg));
+					dialog.addButton("OK", new ICallback() {
+						public void run(Object... obj) {
+							dialog.dismiss();
+						}
+					});
+					dialog.show();
+					if (startingDialog!=null) startingDialog.dismiss();
+					
+					return;
+				}
 				
 				toggleStatus(DURING_TRIP);
+				if (startingDialog!=null) startingDialog.dismiss();
 
 				reservId.set(reserId);
 				fetchPassengerPeriodly.run();
@@ -321,6 +345,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			public void run(Object... obj) {
 				final City city = (City) obj[0];
 				
+				if (city==null || failedStart) {
+					failedStart = true;
+					start.run(-1L);
+					return;
+				}
 				SharedPreferences prefs = Preferences.getGlobalPreferences(PassengerActivity.this);
 				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
 				if (sunRideshareCount==5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
@@ -1094,6 +1123,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				case LocationSettingsStatusCodes.SUCCESS:
 					startLocationUpdates();
 					if (checkGPSAndStart) checkLastTrip();
+					checkGPSAndStart = false;
 					break;
 				case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
 					try {
