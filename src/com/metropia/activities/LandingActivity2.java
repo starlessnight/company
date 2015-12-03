@@ -2381,7 +2381,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		String str = FileUtils.readFileToString(f);
         		JSONObject json = new JSONObject(str);
         		JSONObject result = json.optJSONObject("result");
-        		if (result==null) continue;
+        		if (result==null || result.optInt("bonusAngle", -1)!=-1) continue;
         		
         		passengerIcon.setTag(result);
         		findViewById(R.id.duo_noti).setVisibility(View.VISIBLE);

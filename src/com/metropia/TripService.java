@@ -1,6 +1,7 @@
 package com.metropia;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -34,7 +36,9 @@ import com.metropia.activities.R;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.User;
+import com.metropia.requests.DuoSpinWheelRequest;
 import com.metropia.requests.TripValidationRequest;
+import com.metropia.tasks.ICallback;
 import com.metropia.utils.Misc;
 import com.metropia.utils.HTTP.Method;
 
@@ -75,7 +79,13 @@ public class TripService extends IntentService {
 					reservInfo = new JSONObject();
 				} 
                 try{
-                	if (reservInfo.optJSONObject("result")!=null) continue;
+                	if (reservInfo.optJSONObject("result")!=null) {
+                		int resultAngle = reservInfo.getJSONObject("result").optInt("bonusAngle");
+                		Log.e("jesse log", resultAngle+"");
+                		new DuoSpinWheelRequest(User.getCurrentUser(ctx)).execute(ctx, rId, resultAngle);
+                		TripService.finishTrip(ctx, rId);
+                		continue;
+                	}
                 	String mode = (String) reservInfo.get("MODE");
                     if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.send(ctx, rId, mode)){
                         JSONObject obj = new TripValidationRequest(user, rId, mode).execute(ctx);
@@ -136,7 +146,12 @@ public class TripService extends IntentService {
                 if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.sendImd(ctx, rId, reciverName)){
                     JSONObject obj = new TripValidationRequest(user, rId, reciverName).executeImd(ctx);
                     notifyValidationImd(ctx, reciverName, obj);
-                    FileUtils.deleteQuietly(toSendFile);
+                    if (ValidationActivity.TRIP_VALIDATOR.equals(reciverName)) FileUtils.deleteQuietly(toSendFile);
+                    else {
+                    	JSONObject reservInfo = new JSONObject(FileUtils.readFileToString(toSendFile));
+                    	reservInfo.put("result", obj.getJSONObject("data"));
+                        FileUtils.write(toSendFile, reservInfo.toString());
+                    }
                 }
             }catch(SmarTrekException ex){
                 deleted = true;
@@ -228,6 +243,20 @@ public class TripService extends IntentService {
 		intent.putExtra("wheel_name", data.optString("wheel_name"));
 		
 		
+	}
+	
+	public static void logDuoBonusAngle(Context context, long rid, int angle) {
+		try {
+			File file = new File(getDir(context), String.valueOf(rid));
+			JSONObject obj = new JSONObject(FileUtils.readFileToString(file));
+			obj.getJSONObject("result").put("bonusAngle", angle);
+			FileUtils.write(file, obj.toString());
+		} catch(Exception e) {Log.e("write bonus angle failed", e.toString());}
+		
+	}
+	public static void finishTrip(Context context, long rid) {
+        File file = getFile(context, rid);
+        if(file.exists()) FileUtils.deleteQuietly(file);
 	}
     
     private static File getDir(Context ctx){

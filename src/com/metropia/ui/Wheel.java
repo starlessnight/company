@@ -1,14 +1,23 @@
 package com.metropia.ui;
 
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.metropia.TripService;
 import com.metropia.activities.R;
+import com.metropia.dialogs.DuoStyledDialog;
+import com.metropia.models.Reservation;
 import com.metropia.models.User;
 import com.metropia.requests.DuoSpinWheelRequest;
+import com.metropia.tasks.ICallback;
 import com.metropia.utils.Dimension;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -103,8 +112,20 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		
 		resultAngle = (int) (Math.random() * 360);
 		
-		GetBonusTask task = new GetBonusTask(callback);
-		task.execute();
+		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
+			public void run(Object... obj) {
+				while (spinning) ;
+				if (callback!=null) callback.run();
+				if (bonus==null) {
+					TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
+					Wheel.this.post(new Runnable() {
+						public void run() {
+							showFailedDialog();
+						}
+					});
+				}
+			}
+		});
 		
 		RotateAnimation an = new RotateAnimation(0, 1800*direction + resultAngle-(int)angle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		an.setDuration(5000);
@@ -128,8 +149,32 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	public void spinWithoutAnimation() {
 		resultAngle = -1;
 		
-		GetBonusTask task = new GetBonusTask(callback);
-		task.execute();
+		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
+			public void run(Object... obj) {
+				while (spinning) ;
+				if (callback!=null) callback.run();
+				if (bonus==null) {
+					TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
+					showFailedDialog();
+				}
+			}
+		});
+	}
+	
+	public void showFailedDialog() {
+		final DuoStyledDialog dialog = new DuoStyledDialog(getContext());
+		dialog.setContent("Connection Lost", "We briefly lost connection to the server.\n\nWe will credit to your account once the connection is restored.");
+		dialog.addButton("OK", new ICallback() {
+			public void run(Object... obj) {
+				dialog.dismiss();
+			}
+		});
+		dialog.setOnDismissListener(new OnDismissListener() {
+			public void onDismiss(DialogInterface dialog) {
+				((Activity)getContext()).finish();
+			}
+		});
+		dialog.show();
 	}
 	
 	@SuppressLint("NewApi")
@@ -192,26 +237,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	public boolean onSingleTapUp(MotionEvent e) {return false;}
 
 	
-	class GetBonusTask extends AsyncTask<Void, Void, Void> {
-
-		Runnable cb;
-		
-		public GetBonusTask(Runnable cb) {
-			this.cb = cb;
-		}
-
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			DuoSpinWheelRequest request = new DuoSpinWheelRequest(User.getCurrentUser(Wheel.this.getContext()));
-			try {
-				bonus = request.execute(Wheel.this.getContext(), reservationId, resultAngle);
-			} catch (Exception e) {}
-			
-			while (spinning) ;
-			if (cb!=null) Wheel.this.post(cb);
-			return null;
-		}
-	}
+	
 
 
 	@Override

@@ -219,6 +219,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				else {
 					JSONObject result = new JSONObject(extra.getString("result"));
 					TripService.putInfo(validationResultIntent, result);
+					reservId.set(result.getLong("id"));
 				}
 			} catch (JSONException e) {
 				Log.e("parse validation result failed", e.toString());
@@ -596,7 +597,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, double THRESHOLD_DURATION, double THRESHOLD_DISTANCE, String driverName, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
-			arrivalMsgDisplayed.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
 			findViewById(R.id.loading).setVisibility(View.GONE);
 			final View panel = findViewById(R.id.congrats_panel);
@@ -642,13 +642,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 						if (wheel.bonus!=null) {
 							((TextView)PassengerActivity.this.findViewById(R.id.duoTotalPoints)).setText(Integer.toString(uPoints+wheel.bonus));
 						}
-						else {
-							NotificationDialog dialog = new NotificationDialog(PassengerActivity.this, "An error has occurred.");
-							dialog.setActionListener(new NotificationDialog.ActionListener() {
-								public void onClickDismiss() {finish();}
-							});
-							dialog.show();
-						}
 					}
 				});
 				
@@ -676,11 +669,15 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			else {
 				new ImageLoader(this, wheelUrl, new ICallback() {
 					public void run(Object... obj) {
-						if(obj[0]==null) return;
+						if(obj[0]==null) {
+							showNotifyLaterDialog();
+							return;
+						}
 	                    wheel.setImage((Drawable)obj[0]);
 	                    	
 	                    panel.setVisibility(View.VISIBLE);
 	            		Misc.fadeIn(PassengerActivity.this, panel);
+	        			arrivalMsgDisplayed.set(true);
 					}
 				}).execute(true);
 			}
@@ -815,12 +812,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 
 		findViewById(R.id.loading).setVisibility(View.VISIBLE);
-		findViewById(R.id.loading).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// do nothing	
-			}
-		});
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
@@ -883,7 +874,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					double DUO_distance = intent.getDoubleExtra("DUO_distance", 3);
 					String driverName = intent.getStringExtra("driver_name");
 					String wheelUrl = intent.getStringExtra("wheel_url");
-					doDisplayArrivalMsg(credit, duration, distance, DUO_duration, DUO_distance, driverName, voice, wheelUrl);
+					doDisplayArrivalMsg(30, 100, 100, DUO_duration, DUO_distance, "Jesse", voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}
@@ -911,17 +902,17 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
-			NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!");
-			dialog.setTitle("Thanks for using Metropia");
-			dialog.setPositiveButtonText("OK");
-			dialog.setPositiveActionListener(new ActionListener() {
-				@Override
-				public void onClick() {
-					finish();
+			
+			DuoStyledDialog dialog = new DuoStyledDialog(this);
+			dialog.setContent("Connection Lost", "We briefly lost connection to the server.\n\nClaim your points once connection has been restored.");
+			dialog.addButton("OK", new ICallback() {
+				public void run(Object... obj) {
+					PassengerActivity.this.finish();
 				}
 			});
 			dialog.show();
-		    locationService.closeGPS();
+			
+			locationService.closeGPS();
 		}
 	}
 	
@@ -1076,11 +1067,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				
 				NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.cancel(TripService.DUO_NOTI_ID);
-
-				File[] files = new File(getExternalFilesDir(null), "trip").listFiles();
-				for (File f : files) {
-					if (f.getName().equals(validationResultIntent.getStringExtra("ID"))) FileUtils.deleteQuietly(f);
-				}
 			}
 		}, 2000);
 		
