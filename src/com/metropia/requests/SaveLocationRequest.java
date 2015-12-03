@@ -14,8 +14,7 @@ public class SaveLocationRequest extends Request {
 	
 	public void execute(Context ctx, double lat, double lon, boolean firstLogin) throws Exception {
 		String apiUrl = getLinkUrl(Link.savelocation);
-		url = apiUrl.replaceAll("\\{lat\\}", Double.toString(lat)).replaceAll("\\{lon\\}", Double.toString(lon)).replaceAll("\\{lon\\}", firstLogin? "1":"2");
-		
+		url = apiUrl.replaceAll("\\{lat\\}", Double.toString(lat)).replaceAll("\\{lon\\}", Double.toString(lon)).replaceAll("\\{savetype\\}", firstLogin? "1":"2");
         executeHttpRequest(Method.GET, url, ctx);
     }
 	
