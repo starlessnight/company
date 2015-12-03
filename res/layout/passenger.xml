@@ -35,14 +35,7 @@
                 android:orientation="horizontal"
                 android:background="@color/metropia_green">
 		        
-		        <ImageView 
-                    android:layout_height="match_parent"
-                    android:layout_width="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="25dp"
-                    android:scaleType="fitEnd"
-                    android:src="@drawable/passenger_water_mark"
-                    android:alpha="0.2" />
+		        
                 
                 <ImageView 
                     android:id="@+id/back_button"
@@ -142,22 +135,7 @@
 	    	    android:background="@color/metropia_green"
         	    android:layout_alignParentTop="true">
 	    		
-            	<ImageView
-            	    android:layout_width="wrap_content"
-            	    android:layout_height="match_parent"
-            	    android:layout_alignParentLeft="true"
-            	    android:layout_marginTop="70dp"
-            	    android:scaleType="fitEnd"
-            	    android:src="@drawable/duo_icon"
-            	    android:alpha="0.2" />
-            	<ImageView
-            	    android:layout_width="wrap_content"
-            	    android:layout_height="match_parent"
-            	    android:layout_alignParentRight="true"
-            	    android:layout_marginTop="70dp"
-            	    android:scaleType="fitEnd"
-            	    android:src="@drawable/passenger_water_mark"
-            	    android:alpha="0.2" />
+            	
             	
             	
             	
@@ -220,12 +198,13 @@
 				android:layout_centerInParent="true"
 				android:visibility="gone" />
 			
+			
 			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+				android:layout_width="fill_parent"
+				android:layout_height="match_parent"
+				android:layout_below="@id/wheel"
 				android:layout_centerHorizontal="true"
-				android:layout_alignParentBottom="true"
-				android:layout_marginBottom="60dp"
+				android:gravity="center_horizontal"
 				android:orientation="horizontal">
 				
 				<TextView
