@@ -104,18 +104,12 @@ public class PassengerReservationRequest extends Request {
 					PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(ctx), ctx.getString(R.string.distribution_date));
 					return resvReq.execute(ctx, city);
 				}
-				catch(Exception e) {
-					es.registerException(e);
-				}
+				catch(Exception e) {}
 				return -1L;
 			}
 	
 			@Override
 			protected void onPostExecute(final Long reserId) {
-				if(es.hasExceptions()) {
-					es.reportExceptions();
-				}
-				
 				if (cb!=null) cb.run(reserId);
 			}
 		}.execute();

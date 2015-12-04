@@ -47,7 +47,7 @@ public class ResumeNavigationUtils {
 							reservation.setMode(Reservation.Driver);
 							return true;
 						}
-						else if (System.currentTimeMillis()-lastUpdateTime<60*60*1000) {
+						else if (System.currentTimeMillis()-lastUpdateTime<60*60*1000 && content.optJSONObject("result")==null) {
 							reservation.setMode(Reservation.DUO);
 							return true;
 						}

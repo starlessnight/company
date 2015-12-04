@@ -36,6 +36,7 @@ import com.metropia.activities.R;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.User;
+import com.metropia.receivers.NotificationExpiry;
 import com.metropia.requests.DuoSpinWheelRequest;
 import com.metropia.requests.TripValidationRequest;
 import com.metropia.tasks.ICallback;
@@ -79,14 +80,17 @@ public class TripService extends IntentService {
 					reservInfo = new JSONObject();
 				} 
                 try{
+                	String mode = (String) reservInfo.get("MODE");
+                	
                 	if (reservInfo.optJSONObject("result")!=null) {
-                		int resultAngle = reservInfo.getJSONObject("result").optInt("bonusAngle");
-                		Log.e("jesse log", resultAngle+"");
-                		new DuoSpinWheelRequest(User.getCurrentUser(ctx)).execute(ctx, rId, resultAngle);
+                		int bonusAngle = reservInfo.getJSONObject("result").optInt("bonusAngle", -2);
+                		if (bonusAngle==-2) continue;
+                		
+                		int bonus = new DuoSpinWheelRequest(User.getCurrentUser(ctx)).execute(ctx, rId, bonusAngle);
                 		TripService.finishTrip(ctx, rId);
+                		TripService.notifySpinSuccess(ctx, bonus);
                 		continue;
                 	}
-                	String mode = (String) reservInfo.get("MODE");
                     if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.send(ctx, rId, mode)){
                         JSONObject obj = new TripValidationRequest(user, rId, mode).execute(ctx);
                         
@@ -225,6 +229,20 @@ public class TripService extends IntentService {
         Misc.wakeUpScreen(context, TripValidationRequest.class.getSimpleName());
     }
     
+    private static void notifySpinSuccess(Context context, int bonus) {
+    	String message = bonus + " points have been deposited to your account.";
+    	Intent intentMain = new Intent(context, MainActivity.class);
+		intentMain.setAction(Intent.ACTION_MAIN);
+		intentMain.addCategory(Intent.CATEGORY_LAUNCHER);
+        PendingIntent sender = PendingIntent.getActivity(context, 0, intentMain, PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+        
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notification.setLatestEventInfo(context, "Metropia", message, sender);
+        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
+        notificationManager.notify(0, notification);
+    }
+    
 	
 	public static void putInfo(Intent intent, JSONObject data) {
 		intent.putExtra(ValidationActivity.ID, data.optString("id"));
@@ -255,7 +273,7 @@ public class TripService extends IntentService {
 		
 	}
 	public static void finishTrip(Context context, long rid) {
-        File file = getFile(context, rid);
+        File file = new File(getDir(context), String.valueOf(rid));
         if(file.exists()) FileUtils.deleteQuietly(file);
 	}
     

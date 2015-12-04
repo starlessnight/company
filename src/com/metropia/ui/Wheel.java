@@ -111,19 +111,14 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		if (spinned.getAndSet(true)) return;
 		
 		resultAngle = (int) (Math.random() * 360);
+		TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
 		
 		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
 			public void run(Object... obj) {
+				bonus = (Integer) obj[0];
 				while (spinning) ;
 				if (callback!=null) callback.run();
-				if (bonus==null) {
-					TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
-					Wheel.this.post(new Runnable() {
-						public void run() {
-							showFailedDialog();
-						}
-					});
-				}
+				if (bonus==null) showFailedDialog();
 			}
 		});
 		
@@ -148,33 +143,33 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	}
 	public void spinWithoutAnimation() {
 		resultAngle = -1;
+		TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
 		
 		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
 			public void run(Object... obj) {
-				while (spinning) ;
-				if (callback!=null) callback.run();
-				if (bonus==null) {
-					TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
-					showFailedDialog();
-				}
+				bonus = (Integer) obj[0];
 			}
 		});
 	}
 	
 	public void showFailedDialog() {
-		final DuoStyledDialog dialog = new DuoStyledDialog(getContext());
-		dialog.setContent("Connection Lost", "We briefly lost connection to the server.\n\nWe will credit to your account once the connection is restored.");
-		dialog.addButton("OK", new ICallback() {
-			public void run(Object... obj) {
-				dialog.dismiss();
+		this.post(new Runnable() {
+			public void run() {
+				final DuoStyledDialog dialog = new DuoStyledDialog(getContext());
+				dialog.setContent("Connection Lost", getResources().getString(R.string.duoFailedSpinDialogMsg));
+				dialog.addButton("OK", new ICallback() {
+					public void run(Object... obj) {
+						dialog.dismiss();
+					}
+				});
+				dialog.setOnDismissListener(new OnDismissListener() {
+					public void onDismiss(DialogInterface dialog) {
+						((Activity)getContext()).finish();
+					}
+				});
+				dialog.show();
 			}
 		});
-		dialog.setOnDismissListener(new OnDismissListener() {
-			public void onDismiss(DialogInterface dialog) {
-				((Activity)getContext()).finish();
-			}
-		});
-		dialog.show();
 	}
 	
 	@SuppressLint("NewApi")

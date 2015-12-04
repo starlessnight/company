@@ -35,6 +35,7 @@ public class DuoSpinWheelRequest extends Request {
         
         JSONObject json = new JSONObject(str);
         int bonus = json.getJSONObject("data").getInt("credit_bonus");
+		TripService.finishTrip(ctx, reservationId);
         return bonus;
     }
 	
@@ -47,7 +48,6 @@ public class DuoSpinWheelRequest extends Request {
 				DuoSpinWheelRequest request = new DuoSpinWheelRequest(User.getCurrentUser(ctx));
 				try {
 					bonus = request.execute(ctx, reservationId, degree);
-					TripService.finishTrip(ctx, reservationId);
 				} catch (Exception e) {}
 
 				if (cb!=null) cb.run(bonus);

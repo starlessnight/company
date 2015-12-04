@@ -211,6 +211,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		} else if (extra.getString("result") != null || extra.getString("ID")!=null) {
 			validationResultIntent = new Intent(PassengerActivity.PASSENGER_TRIP_VALIDATOR);
 			arrivalMsgTiggered.set(true);
+			arrived.set(true);
 			
 			try {
 				if (extra.getString("ID")!=null) {
@@ -664,7 +665,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 			if (uPoints==0) {
 				panel.setVisibility(View.VISIBLE);
-    			Misc.fadeIn(PassengerActivity.this, panel);
+    			Misc.fadeIn(PassengerActivity.this, panel);Log.e("id", reservId.get()+"");
+    			TripService.finishTrip(this, reservId.get());
 			}
 			else {
 				new ImageLoader(this, wheelUrl, new ICallback() {
@@ -874,7 +876,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					double DUO_distance = intent.getDoubleExtra("DUO_distance", 3);
 					String driverName = intent.getStringExtra("driver_name");
 					String wheelUrl = intent.getStringExtra("wheel_url");
-					doDisplayArrivalMsg(30, 100, 100, DUO_duration, DUO_distance, "Jesse", voice, wheelUrl);
+					doDisplayArrivalMsg(credit, duration, distance, DUO_duration, DUO_distance, driverName, voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}
@@ -904,7 +906,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			findViewById(R.id.loading).setVisibility(View.GONE);
 			
 			DuoStyledDialog dialog = new DuoStyledDialog(this);
-			dialog.setContent("Connection Lost", "We briefly lost connection to the server.\n\nClaim your points once connection has been restored.");
+			dialog.setContent("Connection Lost", getResources().getString(R.string.duoFailedValidationDialgMsg));
 			dialog.addButton("OK", new ICallback() {
 				public void run(Object... obj) {
 					PassengerActivity.this.finish();
@@ -1166,8 +1168,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					dialog.addButton("DON'T SPIN", new ICallback() {
 						public void run(Object... obj) {
 							wheel.spinWithoutAnimation();
-							finish();
 							dialog.dismiss();
+							finish();
 						}
 					});
 					dialog.addButton("SPIN", new ICallback() {
