@@ -56,18 +56,17 @@
                 android:layout_marginRight="80dp"
                 android:src="@drawable/passenger_mode" />
             
-            <TextView
+              <ImageView
             	android:id="@+id/duo_noti"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_alignRight="@id/passenger_mode_icon"
                 android:layout_alignTop="@id/passenger_mode_icon"
-				android:background="@drawable/notification_circle"
+                android:layout_marginTop="-7dp"
 				android:gravity="center"
-				android:textSize="8dp"
-				android:textColor="#fff"
-				android:text="N"
-				android:visibility="invisible" />
+				
+				android:src="@drawable/duo_noti"
+				android:visibility="visible" />
             
             <TextView
                 android:id="@+id/get_route"
