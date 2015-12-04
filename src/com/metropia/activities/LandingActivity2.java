@@ -3602,7 +3602,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						result.setResultCallback(callback);
 					}
 					
-					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+					Misc.parallelExecute(new AsyncTask<Void, Void, List<Route>>() {
 						
 						@Override
 						protected void onPreExecute() {
@@ -3610,19 +3610,33 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						}
 						
 						@Override
-						protected Void doInBackground(Void... params) {
+						protected List<Route> doInBackground(Void... params) {
+							List<Route> routes = null;
 							try {
 								while(!getLocationRefreshStatus() && !cancelGetRoute.get()) {
 									Thread.sleep(1000);
 								}
+								boolean hasFromAddr = curFrom == null?false:StringUtils.isNotBlank(curFrom.address);
+								RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), curFrom!=null? curFrom.geopoint:myPoint, curTo.geopoint, System.currentTimeMillis(), 0, 0, hasFromAddr?curFrom.address:EditAddress.CURRENT_LOCATION, curTo.address, true, versionNumber, true);
+								routes = request.execute(LandingActivity2.this);
 							}
-							catch(Exception ignore) {}
-							return null;
+							catch(Exception ignore) {Log.e("jesse log e", ignore.toString());}
+							
+							return routes;
 						}
 								
 						@Override
-			        	protected void onPostExecute(Void result) {
+			        	protected void onPostExecute(List<Route> routes) {
 							findViewById(R.id.loading_panel).setVisibility(View.GONE);
+							if (routes==null || routes.size()==0) {
+								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, getResources().getString(R.string.noRouteFound));
+								dialog.setTitle("No Route Found");
+								dialog.setPositiveButtonText("OK");
+								dialog.show();
+								removeAllOD();
+								return;
+							}
+							
 							if(!cancelGetRoute.getAndSet(false)) {
 								startRouteActivity();
 							}
