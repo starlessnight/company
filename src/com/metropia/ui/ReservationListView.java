@@ -21,9 +21,11 @@ import com.metropia.activities.MapDisplayActivity;
 import com.metropia.activities.R;
 import com.metropia.activities.RouteActivity;
 import com.metropia.activities.ValidationActivity;
+import com.metropia.activities.LandingActivity2.BalloonModel;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
+import com.metropia.models.PoiOverlayInfo;
 import com.metropia.models.Reservation;
 import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
@@ -349,8 +351,6 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
 			@Override
 			public void onClick(final View v) {
 				v.setClickable(false);
-//				mapView.deleteAllAnnotationsAndCustomPOIs();
-//				mapView.clearAllOverlays();
 				ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
@@ -363,21 +363,16 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
 			                extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
 			                extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, null);
 			                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
-			                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, LandingActivity2.getInstance().poiContainer.getExistedPOIByLocation(reserv.getStartGpFromNavLink().getLatitude(), reserv.getStartGpFromNavLink().getLongitude()));
+			                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, getPoiInfo(reserv.getStartGpFromNavLink().getLatitude(), reserv.getStartGpFromNavLink().getLongitude(), reserv.getOriginAddress(), reserv.getOriginName()));
 			                extras.putString("destAddr", reserv.getDestinationAddress());
 			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
 			                extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
-			                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, LandingActivity2.getInstance().poiContainer.getExistedPOIByLocation(reserv.getEndGpFromNavLink().getLatitude(), reserv.getEndGpFromNavLink().getLongitude()));
+			                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, getPoiInfo(reserv.getEndGpFromNavLink().getLatitude(), reserv.getEndGpFromNavLink().getLongitude(), reserv.getDestinationAddress(), reserv.getDestinationName()));
 			                intent.putExtras(extras);
-//			                hideBulbBalloon();
-//			                hideStarredBalloon();
-//			                removeAllOD();
 			                getContext().startActivity(intent);
 			                ((Activity) getContext()).finish();
 						}
-						catch(Exception e) {
-//							ehs.reportException(e);
-						}
+						catch(Exception e) {}
 						v.setClickable(true);
 					}
 				});
@@ -557,6 +552,23 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
     		}
     	}
     	return null;
+    }
+    
+    public PoiOverlayInfo getPoiInfo(double lat, double lon, String address, String label) {
+    	PoiOverlayInfo poiInfo = null;
+    	
+    	poiInfo = LandingActivity2.getInstance().poiContainer.getExistedPOIByLocation(lat, lon);
+    	if (poiInfo==null) {
+            BalloonModel model = new BalloonModel();
+            model.lat = lat;
+            model.lon = lon;
+            model.address = address;
+            model.label = label;
+            model.geopoint = new GeoPoint(lat, lon);;
+            poiInfo = PoiOverlayInfo.fromBalloonModel(model);
+    	}
+    	
+    	return poiInfo;
     }
     
     
