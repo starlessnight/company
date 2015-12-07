@@ -117,7 +117,11 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 			public void run(Object... obj) {
 				bonus = (Integer) obj[0];
 				while (spinning) ;
-				if (callback!=null) callback.run();
+				if (callback!=null) {
+					Wheel.this.post(new Runnable() {
+						public void run() {callback.run();}
+					});
+				}
 				if (bonus==null) showFailedDialog();
 			}
 		});
