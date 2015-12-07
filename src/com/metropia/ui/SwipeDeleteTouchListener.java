@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -18,6 +20,7 @@ import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.metropia.activities.R;
 import com.metropia.models.Reservation;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
@@ -114,6 +117,7 @@ public class SwipeDeleteTouchListener implements View.OnTouchListener {
         };
     }
 
+    boolean scrolled = false;
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (mViewWidth < 2) {
@@ -122,6 +126,7 @@ public class SwipeDeleteTouchListener implements View.OnTouchListener {
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
+            	scrolled = false;
                 if (mPaused) {
                     return false;
                 }
@@ -206,6 +211,8 @@ public class SwipeDeleteTouchListener implements View.OnTouchListener {
                 mDownX = 0;
                 mDownView = null;
                 mSwiping = false;
+                int[] buttons = {R.id.reservation_start_button, R.id.reschedule_panel, R.id.reservation_on_my_way};
+            	if (scrolled && ArrayUtils.contains(buttons, view.getId())) return true;
                 break;
             }
 
@@ -218,6 +225,7 @@ public class SwipeDeleteTouchListener implements View.OnTouchListener {
                 boolean dismissLeft = deltaX > 0;
                 if(dismissLeft) {
 	                if (Math.abs(deltaX) > mSlop) {
+	                	scrolled = true;
 	                    mSwiping = true;
 	                    parentView.requestDisallowInterceptTouchEvent(true);
 	

@@ -136,6 +136,8 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
 		this.refreshCallback = refreshCallback;
 	}
     
+	
+	SwipeDeleteTouchListener touchListener;
     private void initReservationListView() {
     	reservationListPanel = (LinearLayout) findViewById(R.id.reservation_list);
     	
@@ -148,7 +150,7 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
     	}
     	
     	
-    	SwipeDeleteTouchListener touchListener =
+    	touchListener =
                 new SwipeDeleteTouchListener(reservationListPanel, 
                         new SwipeDeleteTouchListener.OnDismissCallback() {
                             @Override
@@ -273,6 +275,7 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
         reservInfo.findViewById(R.id.center_line).setVisibility(isFirst? View.GONE : View.VISIBLE);
         
         if(isFirst) {
+        	startButton.setOnTouchListener(touchListener);
         	startButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(final View v) {
@@ -325,6 +328,7 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
         }
         
         TextView reservationOnMyWay = (TextView) reservInfo.findViewById(R.id.reservation_on_my_way);
+        reservationOnMyWay.setOnTouchListener(touchListener);
         reservationOnMyWay.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
@@ -347,6 +351,7 @@ public class ReservationListView extends FrameLayout implements OnClickListener 
         });
         
         View reservReschedule = reservInfo.findViewById(R.id.reschedule_panel);
+        reservReschedule.setOnTouchListener(touchListener);
         reservReschedule.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
