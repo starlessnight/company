@@ -606,6 +606,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			String userName = User.getCurrentUser(this).getFirstname();
 			
 			if (uPoints==0) {
+    			arrivalMsgDisplayed.set(true);
 				if (duration>=THRESHOLD_DURATION && distance>=THRESHOLD_DISTANCE) {
 		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoNoDriverTitle);
