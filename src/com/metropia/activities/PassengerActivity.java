@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,8 +29,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,17 +48,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
@@ -74,12 +61,8 @@ import com.metropia.SmarTrekApplication;
 import com.metropia.TrajectorySendingService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
-import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.DuoStyledDialog;
-import com.metropia.dialogs.NotificationDialog;
-import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.SunRideshareActivityDialog;
-import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
@@ -97,18 +80,14 @@ import com.metropia.ui.Wheel;
 import com.metropia.ui.animation.CircularPopupAnimation;
 import com.metropia.ui.animation.ClickAnimation;
 import com.metropia.utils.Dimension;
-import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
-import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.ImageUtil;
 import com.metropia.utils.LocationService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
-import com.metropia.utils.RouteNode;
 import com.metropia.utils.Speaker;
 import com.metropia.utils.StringUtil;
-import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKCoordinateRegion;
@@ -129,13 +108,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	final static int DURING_TRIP = 1;
 	final static int END_TRIP = 2;
 	
-	private LocationManager locationManager;
-	private LocationListener locationListener;
 	private Speaker speaker;
 	
 	private Intent validationResultIntent;
 	
-	private ProgressDialog preparingDialog;
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	private Wheel wheel;
@@ -189,15 +165,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
-		
 		locationService.init(this, 1000, 1000, 0, -1);
 		
-		preparingDialog = new ProgressDialog(this, R.style.PopUpDialog);
-    	preparingDialog.setTitle("Metropia");
-    	preparingDialog.setMessage("Preparing...");
-    	preparingDialog.setCanceledOnTouchOutside(false);
-    	preparingDialog.setCancelable(false);
-    	preparingDialog.show();
+		findViewById(R.id.loading).setVisibility(View.VISIBLE);
 		
 		Bundle extra = getIntent().getExtras();
 		if (extra==null) return;
@@ -262,25 +232,15 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 	
 	
-	CancelableProgressDialog startingDialog;
 	boolean failedStart = false;
 	private void checkLastTrip() {
 		
-		startingDialog = new CancelableProgressDialog(this, "Preparing...");
-		startingDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-			@Override
-			public void onClickNegativeButton() {
-				finish();
-			}
-		});
-		startingDialog.show();
+		findViewById(R.id.loading).setVisibility(View.VISIBLE);
 		new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this)).executeAsync(this, new ICallback() {
 
 			@Override
 			public void run(Object... obj) {
 				Integer timeToNext = (Integer) obj[0];
-				
-				findViewById(R.id.loading).setVisibility(View.GONE);
 				
 				if (timeToNext==null) {
 					failedStart = true;
@@ -299,6 +259,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 					if (timeToNext.equals(0)) startTrip();
 					else dialog.show();
+					findViewById(R.id.loading).setVisibility(View.GONE);
 				}
 				
 			}
@@ -324,13 +285,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 						}
 					});
 					dialog.show();
-					if (startingDialog!=null) startingDialog.dismiss();
+					findViewById(R.id.loading).setVisibility(View.GONE);
 					
 					return;
 				}
 				
 				toggleStatus(DURING_TRIP);
-				if (startingDialog!=null) startingDialog.dismiss();
+				findViewById(R.id.loading).setVisibility(View.GONE);
 
 				reservId.set(reserId);
 				fetchPassengerPeriodly.run();
@@ -666,7 +627,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 			if (uPoints==0) {
 				panel.setVisibility(View.VISIBLE);
-    			Misc.fadeIn(PassengerActivity.this, panel);Log.e("id", reservId.get()+"");
+    			Misc.fadeIn(PassengerActivity.this, panel);
     			TripService.finishTrip(this, reservId.get());
 			}
 			else {
@@ -1063,7 +1024,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 			@Override
 			public void run() {
-				preparingDialog.dismiss();
+				findViewById(R.id.loading).setVisibility(View.GONE);
 				if (validationResultIntent==null) return;
 				
 				sendBroadcast(validationResultIntent);
