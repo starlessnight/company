@@ -1855,7 +1855,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 destImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.pin_destination, 1));
                 destAnnView.setView(destImage);
                 destAnn.setAnnotationView(destAnnView);
-                destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+                destAnn.setOffset(new SKScreenPoint(Dimension.dpToPx(-8, getResources().getDisplayMetrics()), Dimension.dpToPx(10, getResources().getDisplayMetrics())));
     			mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
     		}
     		
