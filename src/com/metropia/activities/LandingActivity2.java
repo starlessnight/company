@@ -1013,7 +1013,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        buildLocationSettingsRequest();
         }
         
-        updateMyMetropiaInfo();
+        User.initializeIfNeccessary(_this, new Runnable() {
+
+			@Override
+			public void run() {
+				updateMyMetropiaInfo();
+			}
+		});
     }
     
     public static LandingActivity2 getInstance() {return _this;}
