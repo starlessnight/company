@@ -22,6 +22,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -71,6 +73,7 @@ import com.metropia.requests.CityRequest;
 import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.DuoTripCheckRequest;
 import com.metropia.requests.PassengerRequest;
+import com.metropia.requests.PassengerRequest.InvalidTripException;
 import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
 import com.metropia.tasks.ICallback;
@@ -231,6 +234,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 	}
 	
+	private void stopTimer() {
+		handler.removeCallbacks(fetchPassengerPeriodly);
+		handler.removeCallbacks(checkLowSpeedTimer);
+		ResumeNavigationUtils.cleanTripLog(this);
+		locationService.closeGPS();
+	}
+	
 	
 	boolean failedStart = false;
 	private void checkLastTrip() {
@@ -258,8 +268,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					
 
 					if (timeToNext.equals(0)) startTrip();
-					else dialog.show();
-					findViewById(R.id.loading).setVisibility(View.GONE);
+					else {
+						dialog.show();
+						findViewById(R.id.loading).setVisibility(View.GONE);
+					}
 				}
 				
 			}
@@ -344,7 +356,34 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			request.executeAsync(PassengerActivity.this, reservId.get(), new ICallback() {
 
 				@Override
-				public void run(Object... obj) {
+				public void run(final Object... obj) {
+					if (obj!=null && obj[0] instanceof Exception) {
+						PassengerActivity.this.runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+
+								final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
+								dialog.setContent(((InvalidTripException)obj[0]).header, ((InvalidTripException)obj[0]).message);
+								dialog.show();
+								dialog.setOnDismissListener(new OnDismissListener() {
+									public void onDismiss(DialogInterface dialog) {
+										PassengerActivity.this.finish();
+									}
+								});
+								dialog.addButton("OK", new ICallback() {
+									public void run(Object... obj) {
+										dialog.dismiss();
+									}
+								});
+								
+							}
+						});
+						
+						stopTimer();
+						return;
+					}
+					
 					ArrayList<Passenger> passengers = (ArrayList<Passenger>) obj[0];
 					if (passengers!=null) remotePassengers = passengers;
 				}
@@ -645,8 +684,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					}
 				}).execute(true);
 			}
-			
-			locationService.closeGPS();
 		}
 	}
 	
@@ -750,10 +787,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		arrivalMsgTiggered.set(true);
 		arrived.set(true);
 		status = END_TRIP;
-		handler.removeCallbacks(fetchPassengerPeriodly);
-		handler.removeCallbacks(checkLowSpeedTimer);
-		
-		ResumeNavigationUtils.cleanTripLog(this);
+		stopTimer();
 
 		saveTrajectory(new Runnable() {
 			@Override
@@ -875,8 +909,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				}
 			});
 			dialog.show();
-			
-			locationService.closeGPS();
 		}
 	}
 	

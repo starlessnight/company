@@ -34,6 +34,10 @@ public class PassengerRequest extends Request {
             JSONArray names = json.getJSONObject("data").getJSONArray("o_users_names");
             JSONArray photos = json.getJSONObject("data").getJSONArray("o_users_pic");
             JSONArray ids = json.getJSONObject("data").getJSONArray("o_users_id");
+            JSONObject exception = json.optJSONObject("exception");
+            
+            if (exception!=null) throw new InvalidTripException(exception.getString("header"), exception.getString("content"));
+            
             for (int i=0 ; i<names.length() ; i++) {
             	passengers.add(new Passenger(ids.getInt(i), names.getString(i), photos.getString(i)));
             }
@@ -57,12 +61,26 @@ public class PassengerRequest extends Request {
 				ArrayList<Passenger> passengers = null;
 				try {
 					passengers = PassengerRequest.this.execute(ctx, rid);
-				} catch (Exception e) {}
+				} catch (Exception e) {
+					if (cb!=null) cb.run(e);
+					return null;
+				}
 				
 				if (cb!=null) cb.run(passengers);
 				return null;
 			}
 		}.execute();
 		
+    }
+    
+    public class InvalidTripException extends Exception {
+    	
+    	public String header;
+    	public String message;
+    	
+    	public InvalidTripException(String header, String message) {
+    		this.header = header;
+    		this.message = message;
+    	}
     }
 }
