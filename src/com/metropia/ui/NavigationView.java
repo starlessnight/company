@@ -738,6 +738,7 @@ public class NavigationView extends LinearLayout {
 	
 	private boolean isEnableVoiceGuidenceText(String text, RouteNode lastNode, double lat, double lon) {
 		if(restrictVoiceGuidance) {
+			if(StringUtils.lowerCase(text)!=null)
 			return StringUtils.lowerCase(text).contains("destination");
 		}
 		return true;
