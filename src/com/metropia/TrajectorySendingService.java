@@ -113,7 +113,7 @@ public class TrajectorySendingService extends Service {
 			                                empty = false;
 			                                
 			                            	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
-			                                while (d.list().length>0 && lastSendResult) send(TrajectorySendingService.this, d, false, mode, FRONT_FRAGMENT);
+			                                while (d.list()!=null && d.list().length>0 && lastSendResult) send(TrajectorySendingService.this, d, false, mode, FRONT_FRAGMENT);
 			                            }
 			                        }
 			                    }
