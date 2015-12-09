@@ -230,7 +230,7 @@ public class TripService extends IntentService {
     }
     
     private static void notifySpinSuccess(Context context, int bonus) {
-    	String message = bonus + " points have been deposited to your account.";
+    	String message = "We've deposited " + bonus + " points into your account for using DUO!";
     	Intent intentMain = new Intent(context, MainActivity.class);
 		intentMain.setAction(Intent.ACTION_MAIN);
 		intentMain.addCategory(Intent.CATEGORY_LAUNCHER);

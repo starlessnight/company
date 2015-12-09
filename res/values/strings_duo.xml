@@ -37,8 +37,8 @@
 	<string name="duoFailDistanceMsg">Exceed %1$s miles \nYour trip: %2$s</string>
 	
 	<string name="duoFailedStartDialogMsg">We could not start your trip due to a slow connection.\n\nPlease tap \"Start My Trip\" to try again.</string>
-	<string name="duoFailedSpinDialogMsg">We briefly lost connection to Metropia.\n\nYour points will be updated once the connection has been restored.</string>
 	<string name="duoFailedValidationDialgMsg">We briefly lost connection to Metropia.\n\nWe will remind you to spin the wheel again when the connection is restored.</string>
+	<string name="duoFailedSpinDialogMsg">You\'ve temporarily lost connection with Metropia.\n\nWe will credit your account once a connection is restored.</string>
 	
 	<plurals name="minute">
         <item quantity="one">1 minute</item>
