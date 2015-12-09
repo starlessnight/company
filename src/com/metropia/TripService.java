@@ -189,10 +189,11 @@ public class TripService extends IntentService {
 	public static final Integer DUO_NOTI_ID = Integer.valueOf(123452);
 	
     @SuppressLint("NewApi")
-	private static void notifyValidation(Context context, String receiverName, JSONObject reservInfo, JSONObject obj) {
+	public static void notifyValidation(Context context, String receiverName, JSONObject reservInfo, JSONObject obj) {
     	JSONObject data = null;
     	try {
     		data = obj.getJSONObject("data");
+        	if (PassengerActivity.PASSENGER_TRIP_VALIDATOR.equals(receiverName)) data.put("message", "Please spin the DUO Prize Wheel to earn your reward!");
     	} catch(Exception e) {Log.e("fetch data attribute failed", e.toString());}
     	
     	Class<?> target = ValidationActivity.TRIP_VALIDATOR.equals(receiverName)? CongratulationActivity.class:PassengerActivity.class;
@@ -263,13 +264,13 @@ public class TripService extends IntentService {
 		
 	}
 	
-	public static void logDuoBonusAngle(Context context, long rid, int angle) {
+	public static void logTripInfo(Context context, long rid, String attr, int value) {
 		try {
 			File file = new File(getDir(context), String.valueOf(rid));
 			JSONObject obj = new JSONObject(FileUtils.readFileToString(file));
-			obj.getJSONObject("result").put("bonusAngle", angle);
+			obj.getJSONObject("result").put(attr, value);
 			FileUtils.write(file, obj.toString());
-		} catch(Exception e) {Log.e("write bonus angle failed", e.toString());}
+		} catch(Exception e) {Log.e("write trip info failed", e.toString());}
 		
 	}
 	public static void finishTrip(Context context, long rid) {

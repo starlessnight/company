@@ -111,7 +111,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		if (spinned.getAndSet(true)) return;
 		
 		resultAngle = (int) (Math.random() * 360);
-		TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
+		TripService.logTripInfo(getContext(), reservationId, "bonusAngle", resultAngle);
 		
 		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
 			public void run(Object... obj) {
@@ -147,7 +147,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	}
 	public void spinWithoutAnimation() {
 		resultAngle = -1;
-		TripService.logDuoBonusAngle(getContext(), reservationId, resultAngle);
+		TripService.logTripInfo(getContext(), reservationId, "bonusAngle", resultAngle);
 		
 		new DuoSpinWheelRequest(User.getCurrentUser(getContext())).executeAsync(getContext(), reservationId, resultAngle, new ICallback() {
 			public void run(Object... obj) {

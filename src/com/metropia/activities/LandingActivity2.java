@@ -113,6 +113,7 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.TripService;
 import com.metropia.adapters.FavoriteAddressAdapter;
 import com.metropia.dialogs.BlurDialog;
 import com.metropia.dialogs.NotificationDialog2;
@@ -2387,7 +2388,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		String str = FileUtils.readFileToString(f);
         		JSONObject json = new JSONObject(str);
         		JSONObject result = json.optJSONObject("result");
+        		JSONObject data = new JSONObject("{data:"+result.toString()+"}");
         		if (result==null || (result.optInt("credit")!=0 && result.optInt("bonusAngle", -2)!=-2)) continue;
+        		if (result.optInt("loadWheelFailed")==1) TripService.notifyValidation(this, PassengerActivity.PASSENGER_TRIP_VALIDATOR, json, data);
         		
         		passengerIcon.setTag(result);
         		findViewById(R.id.duo_noti).setVisibility(View.VISIBLE);

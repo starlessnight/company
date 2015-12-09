@@ -672,15 +672,17 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			else {
 				new ImageLoader(this, wheelUrl, new ICallback() {
 					public void run(Object... obj) {
+	        			arrivalMsgDisplayed.set(true);
 						if(obj[0]==null) {
 							showNotifyLaterDialog();
+							TripService.logTripInfo(PassengerActivity.this, reservId.get(), "loadWheelFailed", 1);
 							return;
 						}
 	                    wheel.setImage((Drawable)obj[0]);
 	                    	
 	                    panel.setVisibility(View.VISIBLE);
 	            		Misc.fadeIn(PassengerActivity.this, panel);
-	        			arrivalMsgDisplayed.set(true);
+	        			TripService.logTripInfo(PassengerActivity.this, reservId.get(), "loadWheelFailed", 0);
 					}
 				}).execute(true);
 			}
