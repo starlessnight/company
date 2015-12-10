@@ -390,61 +390,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         toDropDownButton = findViewById(R.id.to_drop_down_button);
         fromDropDownButton = findViewById(R.id.from_drop_down_button);
-        final ImageView toDropDownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
-        toDropDownButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						hidePopupMenu();
-						if(DROP_STATE.equals(toDropDownButton.getTag())) {
-							toDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
-							toFavoriteDropdown.setVisibility(View.GONE);
-							toDropDownButton.setTag("");
-						}
-						else {
-							searchBox.clearFocus();
-							if(DROP_STATE.equals(fromDropDownButton.getTag())) {
-								fromDropDownButton.performClick();
-							}
-							toDropDownIcon.setImageResource(R.drawable.shrink_arrow);
-							toFavoriteDropdown.setVisibility(View.VISIBLE);
-							toDropDownButton.setTag(DROP_STATE);
-						}
-					}
-				});
-			}
-        });
-        
-        final ImageView fromDropDownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
-        fromDropDownButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						hidePopupMenu();
-						if(DROP_STATE.equals(fromDropDownButton.getTag())) {
-							fromDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
-							fromFavoriteDropdown.setVisibility(View.GONE);
-							fromDropDownButton.setTag("");
-						}
-						else {
-							fromSearchBox.clearFocus();
-							if(DROP_STATE.equals(toDropDownButton.getTag())) {
-								toDropDownButton.performClick();
-							}
-							fromDropDownIcon.setImageResource(R.drawable.shrink_arrow);
-							fromFavoriteDropdown.setVisibility(View.VISIBLE);
-							fromDropDownButton.setTag(DROP_STATE);
-						}
-					}
-				});
-			}
-        });
+        toDropDownButton.setOnClickListener(onClickListener);
+        fromDropDownButton.setOnClickListener(onClickListener);
+       
         
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -552,6 +500,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         });
         
         searchBoxClear = findViewById(R.id.search_box_clear);
+        searchBoxClear.setOnClickListener(onClickListener);
         DelayTextWatcher delayTextWatcher = new DelayTextWatcher(searchBox, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
@@ -637,21 +586,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         searchBox.addTextChangedListener(delayTextWatcher);
         
-        searchBoxClear.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	removeOldOD(false);
-                searchBox.setText("");
-                toIcon.setImageResource(0);
-                toIcon.setVisibility(View.INVISIBLE);
-                clearSearchResult();
-                if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
-                	fromSearchBoxClear.performClick();
-                }
-            }
-        });
+        
         
         fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
+        fromSearchBoxClear.setOnClickListener(onClickListener);
         DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(fromSearchBox, new TextChangeListener(){
             @Override
             public void onTextChanged(CharSequence text) {
@@ -733,16 +671,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }, TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
-        fromSearchBoxClear.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	removeOldOD(true);
-                fromIcon.setImageResource(0);
-                fromIcon.setVisibility(View.INVISIBLE);
-                fromSearchBox.setText("");
-                clearFromSearchResult();
-            }
-        });
+       
         
         final String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
@@ -851,27 +780,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         final TextView inboxNotification = (TextView) findViewById(R.id.inbox_notification);
         TextView inBoxMenu = (TextView) findViewById(R.id.message_inbox);
-        inBoxMenu.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				if(StringUtils.isNotBlank(inboxCityName)) {
-					v.setClickable(false);
-					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							DebugOptionsActivity.setInboxLastVisitFeedTime(LandingActivity2.this, inboxCityName, realLastFeed);
-							findViewById(R.id.menu_notification).setVisibility(View.GONE);
-							inboxNotification.setVisibility(View.GONE);
-							Intent inboxIntent = new Intent(LandingActivity2.this, InBoxActivity.class);
-							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
-							startActivity(inboxIntent);
-							v.setClickable(true);
-						}
-					});
-				}
-			}
-        });
+        inBoxMenu.setOnClickListener(onClickListener);
+      
         
 //        final View activityRootView = findViewById(android.R.id.content);
 //        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -904,69 +814,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         poiIcon = (ImageView) findViewById(R.id.poi_icon);
         
         editMenu = (ImageView) findViewById(R.id.edit_menu);
-        editMenu.setOnClickListener(new OnClickListener() {
-        	@Override
-        	public void onClick(final View v) {
-        		if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
-		        	v.setClickable(false);
-		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
-		        	editMenu.setImageResource(resourceIds[0]);
-		        	ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							editMenu.setImageResource(resourceIds[1]);
-							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-							showFavoriteOptPanel(info);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-		        	});
-        		}
-        	}
-        });
+        editMenu.setOnClickListener(onClickListener);
         
         toMenu = (ImageView) findViewById(R.id.to_menu);
-        toMenu.setOnClickListener(new OnClickListener() {
-        	@Override
-			public void onClick(final View v) {
-        		if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
-					v.setClickable(false);
-					toMenu.setImageResource(R.drawable.selected_to_menu);
-					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-					clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							toMenu.setImageResource(R.drawable.to_menu);
-							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-					});
-        		}
-			}
-        });
+        toMenu.setOnClickListener(onClickListener);
         
         fromMenu = (ImageView) findViewById(R.id.from_menu);
-        fromMenu.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
-					v.setClickable(false);
-					fromMenu.setImageResource(R.drawable.selected_from_menu);
-					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-					clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							fromMenu.setImageResource(R.drawable.from_menu);
-							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-					});
-				}
-			}
-        });
+        fromMenu.setOnClickListener(onClickListener);
+        
         
         fromIcon = (ImageView) findViewById(R.id.from_icon);
         toIcon = (ImageView) findViewById(R.id.to_icon);
@@ -3537,8 +3392,145 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onClick(View v) {
-		
+		final ImageView toDropDownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
+		final ImageView fromDropDownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
+		ClickAnimation clickAnimation,clickAni;
 		switch(v.getId()) {
+			case R.id.to_drop_down_button:
+				clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						hidePopupMenu();
+						if(DROP_STATE.equals(toDropDownButton.getTag())) {
+							toDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
+							toFavoriteDropdown.setVisibility(View.GONE);
+							toDropDownButton.setTag("");
+						}
+						else {
+							searchBox.clearFocus();
+							if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+								fromDropDownButton.performClick();
+							}
+							toDropDownIcon.setImageResource(R.drawable.shrink_arrow);
+							toFavoriteDropdown.setVisibility(View.VISIBLE);
+							toDropDownButton.setTag(DROP_STATE);
+						}
+					}
+				});
+			break;
+			case R.id.from_drop_down_button:
+				clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						hidePopupMenu();
+						if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+							fromDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
+							fromFavoriteDropdown.setVisibility(View.GONE);
+							fromDropDownButton.setTag("");
+						}
+						else {
+							fromSearchBox.clearFocus();
+							if(DROP_STATE.equals(toDropDownButton.getTag())) {
+								toDropDownButton.performClick();
+							}
+							fromDropDownIcon.setImageResource(R.drawable.shrink_arrow);
+							fromFavoriteDropdown.setVisibility(View.VISIBLE);
+							fromDropDownButton.setTag(DROP_STATE);
+						}
+					}
+				});
+			break;
+			case R.id.search_box_clear:
+				removeOldOD(false);
+                searchBox.setText("");
+                toIcon.setImageResource(0);
+                toIcon.setVisibility(View.INVISIBLE);
+                clearSearchResult();
+                if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
+                	fromSearchBoxClear.performClick();
+                }
+			break;
+			case R.id.from_search_box_clear:
+				removeOldOD(true);
+                fromIcon.setImageResource(0);
+                fromIcon.setVisibility(View.INVISIBLE);
+                fromSearchBox.setText("");
+                clearFromSearchResult();
+			break;			
+			case R.id.edit_menu:
+				final View edit_menu_v=v;
+				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					edit_menu_v.setClickable(false);
+		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
+		        	editMenu.setImageResource(resourceIds[0]);
+		        	clickAni = new ClickAnimation(LandingActivity2.this, edit_menu_v);
+		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							editMenu.setImageResource(resourceIds[1]);
+							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+							showFavoriteOptPanel(info);
+							hidePopupMenu();
+							edit_menu_v.setClickable(true);
+						}
+		        	});
+        		}
+			break;
+			case R.id.to_menu:
+				final View to_menu_v=v;
+				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					to_menu_v.setClickable(false);
+					toMenu.setImageResource(R.drawable.selected_to_menu);
+					clickAni = new ClickAnimation(LandingActivity2.this, to_menu_v);
+					clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							toMenu.setImageResource(R.drawable.to_menu);
+							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
+							hidePopupMenu();
+							to_menu_v.setClickable(true);
+						}
+					});
+        		}
+			break;
+			case R.id.from_menu:
+				final View fromMenu_v=v;
+				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					fromMenu_v.setClickable(false);
+					fromMenu.setImageResource(R.drawable.selected_from_menu);
+					clickAni = new ClickAnimation(LandingActivity2.this, fromMenu_v);
+					clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							fromMenu.setImageResource(R.drawable.from_menu);
+							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
+							hidePopupMenu();
+							fromMenu_v.setClickable(true);
+						}
+					});
+				}
+			break;
+			case R.id.message_inbox:
+				final View message_inbox_v=v;
+				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					message_inbox_v.setClickable(false);
+		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
+		        	editMenu.setImageResource(resourceIds[0]);
+		        	clickAni = new ClickAnimation(LandingActivity2.this, message_inbox_v);
+		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							editMenu.setImageResource(resourceIds[1]);
+							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+							showFavoriteOptPanel(info);
+							hidePopupMenu();
+							message_inbox_v.setClickable(true);
+						}
+		        	});
+        		}
+			break;
 			case R.id.drawer_menu_icon_panel:
 				toggleMenu();
 			break;
