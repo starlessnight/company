@@ -357,7 +357,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 				@Override
 				public void run(final Object... obj) {
-					if (obj!=null && obj[0] instanceof Exception) {
+					if (obj!=null && obj[0] instanceof InvalidTripException) {
 						PassengerActivity.this.runOnUiThread(new Runnable() {
 
 							@Override

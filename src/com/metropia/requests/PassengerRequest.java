@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.Passenger;
@@ -61,9 +62,11 @@ public class PassengerRequest extends Request {
 				ArrayList<Passenger> passengers = null;
 				try {
 					passengers = PassengerRequest.this.execute(ctx, rid);
-				} catch (Exception e) {
+				} catch (InvalidTripException e) {
 					if (cb!=null) cb.run(e);
 					return null;
+				} catch (Exception e) {
+					
 				}
 				
 				if (cb!=null) cb.run(passengers);
