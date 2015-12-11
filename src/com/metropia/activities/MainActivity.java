@@ -119,18 +119,18 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             }
 	        
 	        if(Request.NEW_API){
-	        	final NotificationDialog2 waitOrCancelDialog = new NotificationDialog2(MainActivity.this, "The network seems to be very slow.\nKeep on trying?");
+	        	final NotificationDialog2 waitOrCancelDialog = new NotificationDialog2(MainActivity.this, "Your connection to our server is very slow. Would you like to keep trying to log on?");
 	        	waitOrCancelDialog.setVerticalOrientation(false);
 	        	waitOrCancelDialog.setMessageTextSize(12);
-				waitOrCancelDialog.setTitle("Just a little bit longer...");
-				waitOrCancelDialog.setNegativeButtonText("Cancel");
+				waitOrCancelDialog.setTitle("Sorry for the delay");
+				waitOrCancelDialog.setNegativeButtonText("No");
 				waitOrCancelDialog.setNegativeActionListener(new ActionListener() {
 					@Override
 					public void onClick() {
 						MainActivity.this.finish();
 					}
 				});
-				waitOrCancelDialog.setPositiveButtonText("I'll wait");
+				waitOrCancelDialog.setPositiveButtonText("Yes");
 				waitOrCancelDialog.setPositiveActionListener(new ActionListener() {
 					@Override
 					public void onClick() {
