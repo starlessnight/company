@@ -3531,25 +3531,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			break;
 			
 			case R.id.map_view_on_my_way_btn:
-				NotificationDialog2 dialog = new NotificationDialog2(this, "On my Way is currently available for passengers only.");
-				dialog.setVerticalOrientation(false);
-				dialog.setTitle("Are you the passenger?");
-				dialog.setNegativeButtonText("No");
-				dialog.setNegativeActionListener(new ActionListener() {
-					public void onClick() {}
-				});
-				dialog.setPositiveButtonText("Yes");
-				dialog.setPositiveActionListener(new ActionListener() {
-					@Override
-					public void onClick() {
-						Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
-						contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
-						contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
-						startActivityForResult(contactSelect, ON_MY_WAY);
-						v.setTag(new Object());
-					}
-				});
-				dialog.show();
+				Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+				contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
+				contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
+				startActivityForResult(contactSelect, ON_MY_WAY);
+				v.setTag(new Object());
 			break;
 			
 			case R.id.volumn_control:
