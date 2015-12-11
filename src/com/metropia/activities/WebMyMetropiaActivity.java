@@ -41,7 +41,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 	public static final int MY_METROPIA_PAGE = 1;
 	public static final int TIME_SAVING_PAGE = 2;
 	public static final int CO2_SAVING_PAGE = 3;
-
+	private boolean onReceivedError = false;
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,6 +69,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
             }  
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 view.loadUrl("file:///android_asset/error.html");
+                onReceivedError = true;
             }
             
             @Override
@@ -174,7 +175,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 	
 	@Override
 	public void onBackPressed() {
-	    if(webviewContent.canGoBack()){
+	    if(webviewContent.canGoBack()&& onReceivedError == false){
             webviewContent.goBack();
         }else{
             finish();
