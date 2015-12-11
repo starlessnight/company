@@ -61,12 +61,14 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	
 	private AtomicBoolean showWaitOrCancelDialog = new AtomicBoolean(true);
 	
+	private static MainActivity M_this;
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Fabric.with(this, new Crashlytics());
 		
+		M_this=MainActivity.this;
 		// Integrate Localytics
 		Localytics.integrate(this);
 		
@@ -264,7 +266,21 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             if (ehs.hasExceptions()) {
 	            failed = true;
 	            if(onError != null){
-	                ehs.reportExceptions(onError);
+	                //ehs.reportExceptions(onError);
+	            	final NotificationDialog2 noconnection = new NotificationDialog2(M_this, "Please check your network settings and try again!");
+					noconnection.setVerticalOrientation(false);
+					noconnection.setMessageTextSize(12);
+					noconnection.setTitle("Signal is too weak!");
+					noconnection.setPositiveButtonText("OK");
+					noconnection.setPositiveActionListener(new ActionListener() {
+						@Override
+						public void onClick() {
+							M_this.finish();
+						}
+					});
+					noconnection.show();
+							
+						
 	            }
             }
             else {
