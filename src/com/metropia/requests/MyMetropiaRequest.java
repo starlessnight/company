@@ -5,11 +5,15 @@ import java.text.NumberFormat;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import com.metropia.requests.MyMetropiaRequest.MyMetropia;
+import com.metropia.tasks.ICallback;
 
 public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 
@@ -19,6 +23,22 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 		private double co2Saving;
 		
 		private static final NumberFormat df = new DecimalFormat(".#");
+		
+		public MyMetropia() {}
+		public MyMetropia(JSONObject obj) {
+			credit = obj.optInt("credit");
+			timeSaving = obj.optInt("timeSaving")/60;
+			co2Saving = obj.optDouble("co2Saving");
+		}
+		public JSONObject toJSON() {
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("credit", credit);
+				obj.put("timeSaving", timeSaving*60);
+				obj.put("co2Saving", co2Saving);
+			} catch (JSONException e) {}
+			return obj;
+		}
 		
 		public int getCredit() {
 			return credit;
@@ -48,12 +68,30 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 			String balanceString = data.getJSONObject(0).optString("balance", "");
 			if(StringUtils.isNotBlank(balanceString)) {
 				JSONObject balance = new JSONObject(balanceString);
-				myMetropia.credit = balance.optInt("credit", 0);
-				myMetropia.timeSaving = balance.optInt("time_saving", 0) / 60;
-				myMetropia.co2Saving = balance.optDouble("co2_saving", 0);
+				myMetropia = new MyMetropia(balance);
 			}
 		}
         return myMetropia;
+	}
+	
+	public void executeAsyc(final Context ctx, final ICallback cb) {
+		new AsyncTask<Void, Void, MyMetropia>() {
+    		
+			@Override
+			protected MyMetropia doInBackground(Void... params) {
+				MyMetropia info = null;
+				try {
+					info = MyMetropiaRequest.this.execute(ctx);
+				}
+				catch(Exception e) {Log.e("fetch MyMetropia failed", e.toString());}
+				return info;
+			}
+			
+			protected void onPostExecute(MyMetropia info) {
+                if (cb!=null) cb.run(info);
+			}
+    		
+    	}.execute();
 	}
 
 }

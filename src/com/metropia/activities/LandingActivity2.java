@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -325,7 +326,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     
     int[] clickable = {R.id.drawer_menu_icon_panel, R.id.score_notify};
-	int[] clickableAnimated = {R.id.center_map_icon, R.id.passenger_mode_icon, R.id.trip_notify_icon, R.id.get_route, R.id.dashboard, R.id.my_trips, R.id.reservations, R.id.favorite_list, R.id.feedback_menu, R.id.share_menu, R.id.map_display_options, R.id.upoint_panel, R.id.save_time_panel, R.id.co2_panel};
+	int[] clickableAnimated = {R.id.center_map_icon, R.id.passenger_mode_icon, R.id.trip_notify_icon, R.id.get_route, R.id.dashboard, R.id.my_trips, R.id.reservations, R.id.favorite_list, R.id.feedback_menu, R.id.share_menu, R.id.map_display_options, R.id.upoint_panel, R.id.save_time_panel, R.id.co2_panel, R.id.score_notify_close};
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -873,7 +874,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 			@Override
 			public void run() {
-				updateMyMetropiaInfo();
+				SharedPreferences loginPrefs = Preferences.getAuthPreferences(LandingActivity2.this);
+		        JSONObject obj = new JSONObject();
+				try {
+					obj = new JSONObject(loginPrefs.getString("myMetropia", "{}"));
+				} catch (JSONException e) {}
+		        MyMetropia myMetropia = new MyMetropia(obj);
+		        updateMyMetropiaInfo(myMetropia);
+				updateMyMetropiaInfo(null);
 			}
 		});
     }
@@ -2791,114 +2799,90 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	return 2;
     }
     
-    private void updateMyMetropiaInfo() {
-    	AsyncTask<Void, Void, MyMetropia> updateTask = new AsyncTask<Void, Void, MyMetropia>() {
-    		final User user = User.getCurrentUser(LandingActivity2.this);
+    private void updateMyMetropiaInfo(MyMetropia info) {
+    	
+		final User user = User.getCurrentUser(this);
+    	final ICallback updateView = new ICallback() {
+
 			@Override
-			protected MyMetropia doInBackground(Void... params) {
-				MyMetropiaRequest request = new MyMetropiaRequest(user.getUsername());
+			public void run(Object... obj) {
 				MyMetropia info = null;
-				try {
-					info = request.execute(LandingActivity2.this);
-				}
-				catch(Exception e) {
-					ehs.registerException(e);
-				}
-				return info;
-			}
-			
-			protected void onPostExecute(MyMetropia info) {
-				if (isFinishing()) return;
-				if(!ehs.hasExceptions()) {
-					SharedPreferences loginPrefs = Preferences.getAuthPreferences(LandingActivity2.this);
-                    SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-                    final boolean play = StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.PLAY_SCORE_ANIMATION, ""));
-                    if(play) {
-                    	loginPrefsEditor.remove(User.PLAY_SCORE_ANIMATION);
-                    }
-                    loginPrefsEditor.commit();
+				if (obj==null||obj[0]==null) return;
+				else info = (MyMetropia) obj[0];
+				
+				SharedPreferences loginPrefs = Preferences.getAuthPreferences(LandingActivity2.this);
+                SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+                loginPrefsEditor.putString("myMetropia", info.toJSON().toString());
+                
+				final boolean play = StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.PLAY_SCORE_ANIMATION, ""));
+                
+                final StringBuffer rewardString = new StringBuffer();
+                final String formatScore = "%spts";
+                if(play) {
+                	loginPrefsEditor.remove(User.PLAY_SCORE_ANIMATION);
                     
-                    final View scoreNotify = findViewById(R.id.score_notify);
-                	TextView scoreNotifyCloseView = (TextView) findViewById(R.id.score_notify_close);
-                    scoreNotifyCloseView.setOnClickListener(new OnClickListener() {
-            			@Override
-            			public void onClick(final View v) {
-            				v.setClickable(false);
-            				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-            				clickAni.startAnimation(new ClickAnimationEndCallback() {
-            					@Override
-            					public void onAnimationEnd() {
-            						scoreNotify.setVisibility(View.GONE);
-            						v.setClickable(true);
-            					}
-            				});
-            			}
-                	});
-                    
-                    final StringBuffer rewardString = new StringBuffer();
-                    final String formatScore = "%spts";
-                    if(play) {
-                    	rewardString.append(100);
-                    	scoreNotify.setVisibility(View.VISIBLE);
-                    	new CountDownTimer(2000, 10) {
-    						
-    						@Override
-    						public void onTick(long millisUntilFinished) {
-    							String score = Integer.valueOf(rewardString.toString()) - (millisUntilFinished / 20) + "";
-    							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, score)));
-    						}
-    						
-    						@Override
-    						public void onFinish() {
-    							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
-    						}
-    					}.start();
-                    }
-                    else {
-						int reward = info.getCredit();
-						if(reward >= 1000) {
-							rewardString.append(reward / 1000).append("K");
+                	rewardString.append(100);
+                	findViewById(R.id.score_notify_close).setVisibility(View.VISIBLE);
+                	new CountDownTimer(2000, 10) {
+						
+						@Override
+						public void onTick(long millisUntilFinished) {
+							String score = Integer.valueOf(rewardString.toString()) - (millisUntilFinished / 20) + "";
+							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, score)));
 						}
-						else {
-							rewardString.append(new DecimalFormat("#000.#").format(reward)); 
+						
+						@Override
+						public void onFinish() {
+							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
 						}
-						upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
-                    }
-                    
-					int timeSaving = info.getTimeSaving();
-					StringBuffer timeSavingString = new StringBuffer();
-					if(timeSaving >= 1000) {
-						timeSavingString.append(timeSaving / 1000).append("K");
+					}.start();
+                }
+                else {
+					int reward = info.getCredit();
+					if(reward >= 1000) {
+						rewardString.append(reward / 1000).append("K");
 					}
 					else {
-						timeSavingString.append(new DecimalFormat("#00").format(timeSaving));
+						rewardString.append(new DecimalFormat("#000.#").format(reward)); 
 					}
-					timeSavingString.append("min");
-					saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
-					
-					double co2Saving = info.getCo2Saving();
-					StringBuffer co2SavingString = new StringBuffer();
-					if(co2Saving >= 1000) {
-						co2SavingString.append(Double.valueOf(co2Saving / 1000).intValue()).append("K");
-					}
-					else {
-						co2SavingString.append(new DecimalFormat("#000.#").format(co2Saving));
-					}
-					co2SavingString.append("lbs");
-					co2View.setText(formatMyMetropiaInfo(co2SavingString.toString()));
+					upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
+                }
+                loginPrefsEditor.commit();
+                
+				int timeSaving = info.getTimeSaving();
+				StringBuffer timeSavingString = new StringBuffer();
+				if(timeSaving >= 1000) {
+					timeSavingString.append(timeSaving / 1000).append("K");
 				}
+				else {
+					timeSavingString.append(new DecimalFormat("#00").format(timeSaving));
+				}
+				timeSavingString.append("min");
+				saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
+				
+				double co2Saving = info.getCo2Saving();
+				StringBuffer co2SavingString = new StringBuffer();
+				if(co2Saving >= 1000) {
+					co2SavingString.append(Double.valueOf(co2Saving / 1000).intValue()).append("K");
+				}
+				else {
+					co2SavingString.append(new DecimalFormat("#000.#").format(co2Saving));
+				}
+				co2SavingString.append("lbs");
+				co2View.setText(formatMyMetropiaInfo(co2SavingString.toString()));
+				
 			}
-    		
-    	};
-    	Misc.parallelExecute(updateTask);
+		};
+    	
+    	if (info==null) new MyMetropiaRequest(user.getUsername()).executeAsyc(this, updateView);
+    	else updateView.run(info);
     }
     
     private SpannableString formatMyMetropiaInfo(String content) {
     	int indexOfChange = getAlphaIndexExcludeK(content);
     	SpannableString startTimeSpan = SpannableString.valueOf(content);
     	if(indexOfChange != -1) {
-    		startTimeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(13, getResources().getDisplayMetrics())), 
-    				indexOfChange, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    		startTimeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(13, getResources().getDisplayMetrics())), indexOfChange, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     	}
     	return startTimeSpan;
     	
@@ -3621,7 +3605,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 								RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), curFrom!=null? curFrom.geopoint:myPoint, curTo.geopoint, System.currentTimeMillis(), 0, 0, hasFromAddr?curFrom.address:EditAddress.CURRENT_LOCATION, curTo.address, true, versionNumber, true);
 								routes = request.execute(LandingActivity2.this);
 							}
-							catch(Exception ignore) {Log.e("jesse log e", ignore.toString());}
+							catch(Exception ignore) {}
 							
 							return routes;
 						}
@@ -3710,6 +3694,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			           co2Intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			           startActivity(co2Intent);
 			        }
+			break;
+			case R.id.score_notify_close:
+				findViewById(R.id.score_notify).setVisibility(View.GONE);
 			break;
 		}
 		
