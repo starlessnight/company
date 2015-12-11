@@ -74,6 +74,7 @@ import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.DuoTripCheckRequest;
 import com.metropia.requests.PassengerRequest;
 import com.metropia.requests.PassengerRequest.InvalidTripException;
+import com.metropia.requests.Request.Setting;
 import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
 import com.metropia.tasks.ICallback;
@@ -327,7 +328,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				}
 				SharedPreferences prefs = Preferences.getGlobalPreferences(PassengerActivity.this);
 				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
-				if (sunRideshareCount==5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
+				if (sunRideshareCount==Request.shared(PassengerActivity.this)) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
 				
 				PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
 				resvReq.executeAsync(PassengerActivity.this, city, start);
@@ -399,7 +400,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public static ArrayList<Passenger> remotePassengers = new ArrayList<Passenger>();
 	ArrayList<Passenger> localPassengers = new ArrayList<Passenger>();
 	
-	
+	//定位旅行者的座標
 	Animation psAn;
 	private void updatePassengerPosotion(Location location, boolean animated) {
 		SKScreenPoint screenPoint = mapView.coordinateToPoint(new SKCoordinate(location.getLongitude(), location.getLatitude()));

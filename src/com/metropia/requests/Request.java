@@ -14,18 +14,22 @@ import org.apache.http.client.HttpResponseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.metropia.LocalyticsUtils;
 import com.metropia.activities.DebugOptionsActivity;
+import com.metropia.activities.PassengerActivity;
 import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.User;
 import com.metropia.utils.Cache;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.HTTP.Method;
 import com.metropia.utils.Misc;
+import com.metropia.utils.Preferences;
 
 /**
  * A request is a unit sent to the server to perform a certain task such as
@@ -122,7 +126,8 @@ public abstract class Request {
 	    reroute_after_N_deviated_samples,
 	    reroute_trigger_distance_in_meter,
 	    remaining_percentage_to_trigger_OMW_message,
-	    intersection_radius_in_meter
+	    intersection_radius_in_meter,
+	    optin_sunrideshare_counter
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
@@ -335,6 +340,24 @@ public abstract class Request {
     
     public static Object getSetting(Setting setting){
         return settings.get(setting);
+    }
+    public static Object getshared(Setting setting){
+        return settings.get(setting);
+    }
+    public static int shared(Context content){
+    	Object set = settings.get(Setting.optin_sunrideshare_counter);
+    	SharedPreferences prefs = Preferences.getGlobalPreferences(content);
+    	final SharedPreferences.Editor editor=prefs.edit();
+    	int get_shareKey = prefs.getInt("optin_sunrideshare_counter", 0);
+	    if(get_shareKey!=Integer.parseInt(set.toString())){
+	    	editor.putInt("SunRideshareCount", 0);
+	    }
+    	if(set!=null){
+    		editor.putInt("optin_sunrideshare_counter", Integer.parseInt(set.toString()));
+    	}
+    	editor.commit();
+		return set == null?null:Integer.parseInt(set.toString());
+    	
     }
     
     public static Long getActivityDistanceInterval(){
