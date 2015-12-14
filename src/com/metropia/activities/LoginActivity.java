@@ -3,34 +3,27 @@ package com.metropia.activities;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.text.Editable;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
@@ -54,14 +47,10 @@ import com.metropia.CrashlyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.CancelableProgressDialog;
-import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.models.User;
 import com.metropia.requests.CityRequest;
 import com.metropia.requests.CityRequest.City;
-import com.metropia.requests.Request;
-import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginFBTask;
-import com.metropia.tasks.LoginTask;
 import com.metropia.tasks.LoginTaskNew;
 import com.metropia.ui.LoginPager;
 import com.metropia.ui.animation.ClickAnimation;
@@ -274,7 +263,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 			User user;
 			public Runnable setUser(User user) {this.user=user;return this;}
 			public void run() {
-				if(user != null && user.getId() != -1) {
+				if(user != null && user.getEmail()!=null) {
                     Log.d("Login_Activity","Successful Login");
                     Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
 
@@ -299,11 +288,12 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                     finish();
                 }
                 else {
-                    
+                	AlertDialog.Builder notificationDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.PopUpDialog));
+                	
                     editTextPassword.setText("");
-                 
                     CharSequence msg;
                     Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
+                    
                     if(exc instanceof ConnectException || exc instanceof UnknownHostException){
                         msg = getString(R.string.no_connection);
                     }else if(exc instanceof SocketTimeoutException){
@@ -312,10 +302,30 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                     else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
                         msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                     }else{
-                        msg = Html.fromHtml(getAccountPwdErrorMsg());
+                    	if(user.getId()==-1){
+                    		msg = "The email account that you tried to reach does not exist. Would you like to create a new account?";
+                    	}else{
+                    		msg = "Your email and password do not match. Forgot password?";
+                    	}
+                    	
+                    	notificationDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	    	        	public void onClick(DialogInterface dialog, int id) {
+    	    	        		findViewById(user.getId()==-1? R.id.new_user:R.id.forget_pwd).performClick();
+    	    	        	}
+    	    	        });
+    	    	        
+    	    	        notificationDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	    	        	public void onClick(DialogInterface dialog, int id) {
+    	    	        		dialog.dismiss();
+    	    	        	}
+    	    	        });
+                    	
                     }
-                    NotificationDialog2 notificationDialog = new NotificationDialog2(LoginActivity.this, msg);
-                    notificationDialog.show();
+                    
+                	notificationDialog.setMessage(msg);
+                	notificationDialog.setCancelable(false);
+	    	        AlertDialog alert = notificationDialog.create();
+	    	        alert.show();
                 }
 			}
 		};
@@ -367,10 +377,6 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
     		if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password))
     		loginTask.execute();
         }
-	}
-	
-	private static String getAccountPwdErrorMsg(){
-	    return "The username or password you entered is not valid.";
 	}
 	
     public void afterTextChanged(Editable s) {}

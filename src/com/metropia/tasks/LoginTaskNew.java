@@ -59,13 +59,14 @@ public abstract class LoginTaskNew extends AsyncTask<String, Object, User> {
 
 	@Override
 	protected User doInBackground(String... params) {
-		User user = null;
+		User user = new User(-1, username);
 		try {
 			UserIdRequest req = new UserIdRequest(username); 
             req.invalidateCache(ctx);
             Integer id = req.execute(ctx);
             setUserId(id);
-			
+            user.setId(id);
+            
 		    UserLoginRequest request; 
 		    if(userId != null){
 		        request = new UserLoginRequest(userId, username, password);
@@ -79,9 +80,6 @@ public abstract class LoginTaskNew extends AsyncTask<String, Object, User> {
 		    ehs.registerException(e);
 		}
 		
-		if(user == null) {
-			user = new User(-1, username);
-		}
 		
 		return user;
 	}
