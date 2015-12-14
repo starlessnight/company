@@ -8,9 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -30,6 +32,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -351,7 +354,32 @@ public final class UserRegistrationActivity extends FragmentActivity
 				}
 			});
 		    if (ehs.hasExceptions()) {
-		        ehs.reportExceptions();
+		    	Exception e = ehs.popException().getException();
+		    	
+		    	if (e.toString().contains("username") && e.toString().contains("This email")){
+		    		AlertDialog.Builder notificationDialog = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.PopUpDialog));
+		    		
+		    		notificationDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	    	        	public void onClick(DialogInterface dialog, int id) {
+	    	        		onBackPressed();
+	    	        	}
+	    	        });
+	    	        
+	    	        notificationDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+	    	        	public void onClick(DialogInterface dialog, int id) {
+	    	        		dialog.dismiss();
+	    	        	}
+	    	        });
+	    	        
+	    	        notificationDialog.setMessage("This email has already been registered. Do you already have an account?");
+                	notificationDialog.setCancelable(false);
+	    	        AlertDialog alert = notificationDialog.create();
+	    	        alert.show();
+		    	}
+		    	else {
+		    		ehs.reportException(e);
+		    		ehs.reportExceptions();
+		    	}
 		    }
 		    else {
 		    	final NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Now check your mailbox for a verification email!");
