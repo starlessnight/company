@@ -3599,7 +3599,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						protected List<Route> doInBackground(Void... params) {
 							List<Route> routes = null;
 							try {
-								while(!getLocationRefreshStatus() && !cancelGetRoute.get()) {
+								while(!getLocationRefreshStatus() && !cancelGetRoute.get() || (curFrom==null&&myPoint==null)) {
 									Thread.sleep(1000);
 								}
 								boolean hasFromAddr = curFrom == null?false:StringUtils.isNotBlank(curFrom.address);
