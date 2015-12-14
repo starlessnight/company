@@ -3378,6 +3378,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onClick(View v) {
 		final ImageView toDropDownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
 		final ImageView fromDropDownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
+		final TextView inboxNotification = (TextView) findViewById(R.id.inbox_notification);
 		ClickAnimation clickAnimation,clickAni;
 		switch(v.getId()) {
 			case R.id.to_drop_down_button:
@@ -3498,18 +3499,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			break;
 			case R.id.message_inbox:
 				final View message_inbox_v=v;
-				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+				if(StringUtils.isNotBlank(inboxCityName)) {
 					message_inbox_v.setClickable(false);
-		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
-		        	editMenu.setImageResource(resourceIds[0]);
 		        	clickAni = new ClickAnimation(LandingActivity2.this, message_inbox_v);
 		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							editMenu.setImageResource(resourceIds[1]);
-							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-							showFavoriteOptPanel(info);
-							hidePopupMenu();
+							DebugOptionsActivity.setInboxLastVisitFeedTime(LandingActivity2.this,inboxCityName,realLastFeed);
+							findViewById(R.id.menu_notification).setVisibility(View.GONE);
+							inboxNotification.setVisibility(View.GONE);
+							Intent inboxIntent=new Intent(LandingActivity2.this,InBoxActivity.class);
+							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
+							startActivity(inboxIntent);
 							message_inbox_v.setClickable(true);
 						}
 		        	});
