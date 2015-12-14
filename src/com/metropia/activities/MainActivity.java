@@ -43,6 +43,9 @@ import com.skobbler.ngx.SKPrepareMapTextureListener;
 public class MainActivity extends FragmentActivity implements AnimationListener, SKPrepareMapTextureListener {
 	
 	public static final String LOG_TAG = "MainActivity";
+
+	private static Boolean setting_request=false;
+	
 	
 	private ImageView logo;
 	private ImageView logoMask;
@@ -269,17 +272,27 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 					noconnection.setVerticalOrientation(false);
 					noconnection.setMessageTextSize(12);
 					noconnection.setTitle("Signal is too weak!");
-					noconnection.setPositiveButtonText("OK");
-					noconnection.setPositiveActionListener(new ActionListener() {
+					noconnection.setNegativeButtonText("Settings");
+					noconnection.setPositiveButtonText("Exit");
+					noconnection.setNegativeActionListener(new ActionListener() {
+						@Override
+						public void onClick() {
+							Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+							M_this.startActivity(intent);
+							setting_request=true;
+						}
+					});
+					noconnection.setPositiveActionListener(new ActionListener(){
+
 						@Override
 						public void onClick() {
 							M_this.finish();
 						}
 					});
 					noconnection.show();
-							
-						
+					noconnection.dialog.setCanceledOnTouchOutside(false);
 	            }
+	            if (onError!=null) onError.run();
             }
             else {
                 failed = false;
@@ -379,6 +392,12 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    if(setting_request){
+	    	sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, onError);
+	        delay();
+	        setting_request=false;
+	    }
+	    
 	}
 	
 	@Override
