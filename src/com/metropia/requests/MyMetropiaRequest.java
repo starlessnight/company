@@ -27,15 +27,15 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 		public MyMetropia() {}
 		public MyMetropia(JSONObject obj) {
 			credit = obj.optInt("credit");
-			timeSaving = obj.optInt("timeSaving")/60;
-			co2Saving = obj.optDouble("co2Saving");
+			timeSaving = obj.optInt("time＿saving")/60;
+			co2Saving = obj.optDouble("co2_saving");
 		}
 		public JSONObject toJSON() {
 			JSONObject obj = new JSONObject();
 			try {
 				obj.put("credit", credit);
-				obj.put("timeSaving", timeSaving*60);
-				obj.put("co2Saving", co2Saving);
+				obj.put("time＿saving", timeSaving*60);
+				obj.put("co2_saving", co2Saving);
 			} catch (JSONException e) {}
 			return obj;
 		}
