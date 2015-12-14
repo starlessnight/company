@@ -193,7 +193,9 @@ public class TripService extends IntentService {
     	JSONObject data = null;
     	try {
     		data = obj.getJSONObject("data");
-        	if (PassengerActivity.PASSENGER_TRIP_VALIDATOR.equals(receiverName)) data.put("message", "Please spin the DUO Prize Wheel to earn your reward!");
+    		boolean isDuo = PassengerActivity.PASSENGER_TRIP_VALIDATOR.equals(receiverName);
+        	if (isDuo && data.optInt("credit")!=0) data.put("message", "Please spin the DUO Prize Wheel to earn your reward!");
+        	else if (isDuo) data.put("message", "You've temporarily lost connection with Metropia.\nPlease tap \"Start My Trip\" to try again.");
     	} catch(Exception e) {Log.e("fetch data attribute failed", e.toString());}
     	
     	Class<?> target = ValidationActivity.TRIP_VALIDATOR.equals(receiverName)? CongratulationActivity.class:PassengerActivity.class;
