@@ -33,9 +33,7 @@ import com.metropia.models.User;
 import com.metropia.requests.Request;
 import com.metropia.requests.ServiceDiscoveryRequest;
 import com.metropia.requests.ServiceDiscoveryRequest.Result;
-import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginFBTask;
-import com.metropia.tasks.LoginTask;
 import com.metropia.tasks.LoginTaskNew;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Misc;
@@ -58,6 +56,8 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	private LoginTaskNew loginTask;
 	
 	private ServiceDiscoveryTask sdTask;
+	
+	private   NotificationDialog2 waitOrCancelDialog;
 	
 	private AtomicBoolean showWaitOrCancelDialog = new AtomicBoolean(true);
 	
@@ -117,84 +117,32 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             else if (!username.equals("") && !password.equals("") && DebugOptionsActivity.isSkobblerPatched(MainActivity.this)) {
                 loginTask = newLoginTask(username, password);
             }
-	        
-	        if(Request.NEW_API){
-	        	final NotificationDialog2 waitOrCancelDialog = new NotificationDialog2(MainActivity.this, "Your connection to our server is very slow. Would you like to keep trying to log on?");
-	        	waitOrCancelDialog.setVerticalOrientation(false);
-	        	waitOrCancelDialog.setMessageTextSize(12);
-				waitOrCancelDialog.setTitle("Sorry for the delay");
-				waitOrCancelDialog.setNegativeButtonText("No");
-				waitOrCancelDialog.setNegativeActionListener(new ActionListener() {
-					@Override
-					public void onClick() {
-						MainActivity.this.finish();
-					}
-				});
-				waitOrCancelDialog.setPositiveButtonText("Yes");
-				waitOrCancelDialog.setPositiveActionListener(new ActionListener() {
-					@Override
-					public void onClick() {
-						waitOrCancelDialog.dismiss();
-					}
-				});
-	        	
-	            final Runnable onSuccess = new Runnable() {
-                    @Override
-                    public void run() {
-                    	showWaitOrCancelDialog.set(false);
-                    	if(waitOrCancelDialog.isShowing()) {
-                    		Misc.doQuietly(new Runnable() {
-								@Override
-								public void run() {
-									waitOrCancelDialog.dismiss();
-								}
-                    		});
-                    	}
-                    	
-                    	findViewById(R.id.progress).setVisibility(View.GONE);
-                    	
-                    	if(loginTask != null){
-                            loginTask.setDialogEnabled(splashEnded);
-                            loginTask.showDialog();
-                            loginTask.execute();
-                        }
-                        DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
-                    }
-                };
-                sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {
-                    @Override
-                    public void run() {
-                    	showWaitOrCancelDialog.set(false);
-                    	if(waitOrCancelDialog.isShowing()) {
-                    		Misc.doQuietly(new Runnable() {
-								@Override
-								public void run() {
-									waitOrCancelDialog.dismiss();
-								}
-                    		});
-                    	}
-                    	findViewById(R.id.progress).setVisibility(View.GONE);
-                        finish();
-                    }
-                });
-                
-                new Handler().postDelayed(new Runnable() {
-        			@Override
-        			public void run() {
-        				if(showWaitOrCancelDialog.getAndSet(false) && !isFinishing()) {
-        					Misc.doQuietly(new Runnable() {
-								@Override
-								public void run() {
-									waitOrCancelDialog.show();
-								}
-        					});
-        				}
-        			}
-                }, 10000);
-                
-	        }else if(loginTask != null){
-	            loginTask.execute();
-	        }
+            
+            waitOrCancelDialog = new NotificationDialog2(MainActivity.this, "Your connection to our server is very slow. Would you like to keep trying to log on?");
+        	waitOrCancelDialog.setVerticalOrientation(false);
+        	waitOrCancelDialog.setMessageTextSize(12);
+			waitOrCancelDialog.setTitle("Sorry for the delay");
+			waitOrCancelDialog.setNegativeButtonText("No");
+			waitOrCancelDialog.setPositiveButtonText("Yes");
+			waitOrCancelDialog.setCanceledOnTouchOutside(false);
+			
+			waitOrCancelDialog.setNegativeActionListener(new ActionListener() {
+				@Override
+				public void onClick() {
+					MainActivity.this.finish();
+				}
+			});
+			waitOrCancelDialog.setPositiveActionListener(new ActionListener() {
+				@Override
+				public void onClick() {
+					sdTask.cancel(true);
+					sdTask = initApiLinks(MainActivity.this, getEntrypoint(MainActivity.this), onSuccess, onError);
+					delay();
+				}
+			});
+	       	
+            sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, onError);
+            delay();
 	        
 	        logoMask.startAnimation(slideUpAnimation);
 		}
@@ -202,6 +150,55 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
+	
+	final Runnable onSuccess = new Runnable() {
+        @Override
+        public void run() {
+        	showWaitOrCancelDialog.set(false);
+        	if(waitOrCancelDialog.isShowing()) {
+        		Misc.doQuietly(new Runnable() {
+					@Override
+					public void run() {
+						waitOrCancelDialog.dismiss();
+					}
+        		});
+        	}
+        	
+        	findViewById(R.id.progress).setVisibility(View.GONE);
+        	
+        	if(loginTask != null){
+                loginTask.setDialogEnabled(splashEnded);
+                loginTask.showDialog();
+                loginTask.execute();
+            }
+            DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
+        }
+    };
+    
+    final Runnable onError = new Runnable() {
+        @Override
+        public void run() {
+        	showWaitOrCancelDialog.set(false);
+        }
+    };
+    
+	public void delay(){
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if(showWaitOrCancelDialog.get() && !isFinishing()) {
+					Misc.doQuietly(new Runnable() {
+						@Override
+						public void run() {
+							waitOrCancelDialog.show();
+						}
+					});
+				}
+			}
+        }, 10000);
+		
+	}
+	
 	
 	public static String getEntrypoint(Context ctx){
 	    String url = DebugOptionsActivity.getDebugEntrypoint(ctx);
@@ -263,6 +260,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	    
 	    @Override
         protected void onPostExecute(Result result) {
+	    	if (isCancelled()) return;
             if (ehs.hasExceptions()) {
 	            failed = true;
 	            if(onError != null){
@@ -288,9 +286,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                 Request.setLinkUrls(result.links);
                 Request.setPageUrls(result.pages);
                 Request.setSettings(result.settings);
-                if(onSuccess != null){
-                    onSuccess.run();
-                }
+                if(onSuccess != null) onSuccess.run();
             }
         }
 	    
@@ -300,8 +296,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	    
 	}
 	
-	public static ServiceDiscoveryTask initApiLinks(final Context ctx, final String entrypoint, 
-	        final Runnable onSuccess, final Runnable onError){
+    public static ServiceDiscoveryTask initApiLinks(final Context ctx, final String entrypoint, final Runnable onSuccess, final Runnable onError) {
 	    ServiceDiscoveryTask task = new ServiceDiscoveryTask(ctx, entrypoint, onSuccess, onError);
 	    Misc.parallelExecute(task);
         return task;

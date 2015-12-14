@@ -46,7 +46,7 @@ public class NotificationDialog2 extends Dialog {
 	
 	private String detailMessage;
 	private boolean postiveClickDismiss = true;
-	AlertDialog dialog;
+	public AlertDialog dialog;
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
