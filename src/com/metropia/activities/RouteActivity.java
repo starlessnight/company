@@ -332,7 +332,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				destCoord = addresses.get(0).getGeoPoint();
 				
             	destOverlayInfo = PoiOverlayInfo.fromCurrentLocation(destCoord);
-            	destOverlayInfo.markerWithShadow = R.drawable.pin_destination;
+            	destOverlayInfo.markerWithShadow = R.drawable.pin_destination1;
 			}
 			else {
 				// TODO: Popup a dialog to pick an address
@@ -1290,8 +1290,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 //	    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
 //	    	SKAnnotationView toOverlayView = new SKAnnotationView();
 //	    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
-	    	int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
-	    	boolean isFlag = destResourceId == R.drawable.pin_destination;
+	    	int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination1 : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination1;
+	    	boolean isFlag = destResourceId == R.drawable.pin_destination1;
 //	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, getSizeRatioByZoomLevel()));
 //	    	toOverlayView.setView(toOverlayImageView);
 //	    	toOverlay.setAnnotationView(toOverlayView);
@@ -1469,13 +1469,16 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		SKAnnotationView destAnnView = new SKAnnotationView();
-        SkobblerImageView destImage = new SkobblerImageView(RouteActivity.this, R.drawable.pin_destination, 1);
+        SkobblerImageView destImage = new SkobblerImageView(RouteActivity.this, R.drawable.pin_destination1, 2);
         destImage.setLat(lat);
         destImage.setLon(lon);
-        destImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, R.drawable.pin_destination, 1));
+        destImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, R.drawable.pin_destination1, 2));
         destAnnView.setView(destImage);
         destAnn.setAnnotationView(destAnnView);
-        destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+        //destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+        
+        destAnn.setOffset(new SKScreenPoint(Dimension.dpToPx(-8, getResources().getDisplayMetrics()), Dimension.dpToPx(10, getResources().getDisplayMetrics())));
+
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
 	}
     
@@ -1842,11 +1845,12 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    	double destLon = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLongitude() : routeLastNode.getLongitude();
 	    		toOverlay.setLocation(new SKCoordinate(destLon, destLat));
 	    		SKAnnotationView toOverlayView = new SKAnnotationView();
-	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
+	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination1 : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination1;
 	    		SkobblerImageView toOverlayImageView = new SkobblerImageView(RouteActivity.this, destResourceId, ratio);
 	    		toOverlayImageView.setLat(destLat);
 	    		toOverlayImageView.setLon(destLon);
-	    		boolean isFlag = destResourceId == R.drawable.pin_destination;
+	    		boolean isFlag = destResourceId == R.drawable.pin_destination1;
+	    		if (isFlag) ratio = 2;
 	    		toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
 	    		toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
 	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
