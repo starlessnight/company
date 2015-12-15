@@ -52,6 +52,8 @@ public class PoiOverlayInfo extends BalloonModel implements Parcelable {
         iconName = in.readString();
         geopoint = new GeoPoint(lat, lon);
         uniqueId = in.readInt();
+        potypeid = in.readInt();
+        markerURL = in.readString();
 	}
 
 	@Override
@@ -70,6 +72,8 @@ public class PoiOverlayInfo extends BalloonModel implements Parcelable {
 		dest.writeInt(markerWithShadow);
 		dest.writeString(iconName);
 		dest.writeInt(uniqueId);
+		dest.writeInt(potypeid);
+		dest.writeString(markerURL);
 	}
 	
 	public static PoiOverlayInfo fromAddress(final Context ctx, final com.metropia.models.Address address) {
@@ -82,6 +86,7 @@ public class PoiOverlayInfo extends BalloonModel implements Parcelable {
 		poiInfo.geopoint = new GeoPoint(address.getLatitude(), address.getLongitude());
 		poiInfo.iconName = address.getIconName();
 		poiInfo.markerURL = address.getIconURL();
+		poiInfo.potypeid = address.getPOITYPEID();
 		FavoriteIcon icon = FavoriteIcon.fromName(address.getIconName(), null);
 		
 		if (icon!=null) {

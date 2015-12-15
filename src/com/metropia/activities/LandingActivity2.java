@@ -1210,6 +1210,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         public String label;
         
+        public int potypeid;
+        
     }
     
     
@@ -2395,17 +2397,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	else {
     		predictiveDesttutorial.setVisibility(View.GONE);
     	}
-    	
     	editMenu.setVisibility(!restrictedMode? View.VISIBLE:View.GONE);
     	Integer[] imageResourceIds;
-    	if(info.id == 0) {
+    	if(info.id == 0&&info.potypeid!=1) {
+    		Log.e("info.potypeid!=-1", String.valueOf(info.potypeid));
     		editMenu.setImageResource(R.drawable.save_menu);
     		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
     	}
-    	else {
+    	else if(info.potypeid==1){
+    		Log.e("info.potypeid!=-1", String.valueOf(info.potypeid));
+    		editMenu.setVisibility(View.GONE);
+    	}else
     		editMenu.setImageResource(R.drawable.edit_menu);
-    		imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
-    	}
+			imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
+    	
     	DisplayMetrics dm = getResources().getDisplayMetrics();
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
