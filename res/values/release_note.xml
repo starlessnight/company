@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="releaseTitle">What\'s new in version %s</string>
-	<string name="releaseNote">
-	</string>
+	<string name="releaseNote"><![CDATA[
+	   	<div style=\"color:#ffffff; font-size:18; font-family:Helvetica Neue; \">We\’re back with new features and major upgrades designed to help you drive a better city! <br><br><ul><li>Use <b>DUO carpooling</b> mode when sharing a ride with your friends and EVERYONE earns bonus points by giving our new Prize Wheel a spin.</li></ul><ul><li> We\'re running leaner and meaner than ever before to <b>reduce your mobile data</b> usage.</li></ul><ul><li>Enjoy <b>improved rerouting</b>!</li></ul></div>
+	]]></string>
 	
 </resources>
