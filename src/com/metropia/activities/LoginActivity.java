@@ -9,27 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.content.res.AssetManager;
-import android.location.Location;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
-
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -61,6 +40,28 @@ import com.metropia.utils.HTTP;
 import com.metropia.utils.LocationService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.location.Location;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public final class LoginActivity extends FragmentActivity implements OnClickListener, TextWatcher {
     
@@ -290,6 +291,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                 else {
                 	AlertDialog.Builder notificationDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.PopUpDialog));
                 	
+                	
+                	
                     editTextPassword.setText("");
                     CharSequence msg;
                     Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
@@ -303,9 +306,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                         msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                     }else{
                     	if(user.getId()==-1){
-                    		msg = "The email account that you tried to reach does not exist. Would you like to create a new account?";
+                    		msg = "This email address is not registered with Metropia.\nWould you like to create a new account?";
+                    		
                     	}else{
-                    		msg = "Your email and password do not match. Forgot password?";
+                    		msg = "This email & password combination do not match.\nWould you like to reset your password?";
                     	}
                     	
                     	notificationDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -322,7 +326,14 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                     	
                     }
                     
-                	notificationDialog.setMessage(msg);
+                    TextView myMsg = new TextView(new ContextThemeWrapper(LoginActivity.this, R.style.PopUpDialog));
+                	myMsg.setText(msg);
+                	myMsg.setTextSize(18);
+                	myMsg.setPadding(20, 20, 20, 20);
+                	myMsg.setGravity(Gravity.CENTER);
+                	notificationDialog.setView(myMsg);
+                    
+                	//notificationDialog.setMessage(msg);
                 	notificationDialog.setCancelable(false);
 	    	        AlertDialog alert = notificationDialog.create();
 	    	        alert.show();

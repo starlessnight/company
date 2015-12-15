@@ -33,6 +33,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -370,8 +371,15 @@ public final class UserRegistrationActivity extends FragmentActivity
 	    	        		dialog.dismiss();
 	    	        	}
 	    	        });
-	    	        
-	    	        notificationDialog.setMessage("This email has already been registered. Do you already have an account?");
+	    	        TextView myMsg = new TextView(new ContextThemeWrapper(UserRegistrationActivity.this, R.style.PopUpDialog));
+                	String msg = "This email has already been registered.\nWould you like to login with this account?";
+	    	        myMsg.setText(msg);
+                	myMsg.setTextSize(18);
+                	myMsg.setPadding(20, 20, 20, 20);
+                	myMsg.setGravity(Gravity.CENTER);
+                	notificationDialog.setView(myMsg);
+                	
+	    	        //notificationDialog.setMessage("This email has already been registered. Would you like to login with this account?");
                 	notificationDialog.setCancelable(false);
 	    	        AlertDialog alert = notificationDialog.create();
 	    	        alert.show();
