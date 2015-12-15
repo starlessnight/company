@@ -115,7 +115,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private Speaker speaker;
 	
 	private Intent validationResultIntent;
-	
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	private Wheel wheel;
@@ -133,7 +132,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		super.onCreate(savedInstanceState);
     	SkobblerUtils.initializeLibrary(this);
 		setContentView(R.layout.passenger);
-		
 		registerReceiver(tripValidator, new IntentFilter(PASSENGER_TRIP_VALIDATOR));
 		
 
@@ -289,6 +287,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				final long reserId = (Long) obj[0];
 				if (isFinishing()) return;
 				if (reserId==-1 || failedStart) {
+					SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+					SharedPreferences.Editor mEditor=lock.edit();
+					mEditor.putBoolean("lock", false);
+					mEditor.commit();
 					failedStart = false;
 					final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
 					dialog.setContent("Please Try Again", getResources().getString(R.string.duoFailedStartDialogMsg));
@@ -644,6 +646,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					public void run() {
 						if (wheel.bonus!=null) {
 							((TextView)PassengerActivity.this.findViewById(R.id.duoTotalPoints)).setText(Integer.toString(uPoints+wheel.bonus));
+							SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+							SharedPreferences.Editor mEditor=lock.edit();
+							mEditor.putBoolean("lock", true);
+							mEditor.commit();
 						}
 					}
 				});
@@ -903,7 +909,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
-			
+			SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+			SharedPreferences.Editor mEditor=lock.edit();
+			mEditor.putBoolean("lock", true);
+			mEditor.commit();
 			DuoStyledDialog dialog = new DuoStyledDialog(this);
 			dialog.setContent("Connection Lost", getResources().getString(R.string.duoFailedValidationDialgMsg));
 			dialog.addButton("OK", new ICallback() {
@@ -1165,6 +1174,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					dialog.addButton("DON'T SPIN", new ICallback() {
 						public void run(Object... obj) {
 							wheel.spinWithoutAnimation();
+							SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+							SharedPreferences.Editor mEditor=lock.edit();
+							mEditor.putBoolean("lock", false);
+							mEditor.commit();
 							dialog.dismiss();
 							finish();
 						}
@@ -1176,7 +1189,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					});
 					dialog.show();
 				}
-				else finish();
+				else {
+					SharedPreferences lock= getApplication().getSharedPreferences("LOCK", 0);
+					SharedPreferences.Editor mEditor=lock.edit();
+					mEditor.putBoolean("lock", false);
+					mEditor.commit();
+					finish();
+				}
 				
 			break;
 			case R.id.share:

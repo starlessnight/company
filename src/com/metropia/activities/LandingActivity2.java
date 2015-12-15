@@ -2248,6 +2248,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	File[] files = dir.listFiles();
     	for (File f : files) {
     		try {
+    			SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+				if(lock.getBoolean("lock", false)){
         		String str = FileUtils.readFileToString(f);
         		JSONObject json = new JSONObject(str);
         		JSONObject result = json.optJSONObject("result");
@@ -2257,6 +2259,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		
         		passengerIcon.setTag(result);
         		findViewById(R.id.duo_noti).setVisibility(View.VISIBLE);
+        		}
     		} catch(Exception e) {Log.e("check background validation failed", e.toString());}
     	}
     }
