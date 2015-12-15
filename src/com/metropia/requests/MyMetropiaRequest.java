@@ -27,14 +27,14 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 		public MyMetropia() {}
 		public MyMetropia(JSONObject obj) {
 			credit = obj.optInt("credit");
-			timeSaving = obj.optInt("time＿saving")/60;
+			timeSaving = obj.optInt("time_saving")/60;
 			co2Saving = obj.optDouble("co2_saving");
 		}
 		public JSONObject toJSON() {
 			JSONObject obj = new JSONObject();
 			try {
 				obj.put("credit", credit);
-				obj.put("time＿saving", timeSaving*60);
+				obj.put("time_saving", timeSaving*60);
 				obj.put("co2_saving", co2Saving);
 			} catch (JSONException e) {}
 			return obj;
@@ -61,7 +61,7 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 	@Override
 	public MyMetropia execute(Context ctx) throws Exception {
 		String response = executeFetchRequest(getURL(), ctx);
-		JSONObject json  = new JSONObject(response);
+		JSONObject json = new JSONObject(response);
 		JSONArray data = json.getJSONArray("data");
 		MyMetropia myMetropia = new MyMetropia();
 		if(data.length() > 0){
