@@ -29,6 +29,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -83,6 +84,8 @@ import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.tasks.GeocodingTask;
 import com.metropia.tasks.GeocodingTaskCallback;
+import com.metropia.tasks.ICallback;
+import com.metropia.tasks.ImageLoader;
 import com.metropia.tasks.ShortcutNavigationTask;
 import com.metropia.ui.EditAddress;
 import com.metropia.ui.SkobblerImageView;
@@ -1844,22 +1847,37 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		double destLat = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLatitude() : routeLastNode.getLatitude();
 		    	double destLon = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLongitude() : routeLastNode.getLongitude();
 	    		toOverlay.setLocation(new SKCoordinate(destLon, destLat));
-	    		SKAnnotationView toOverlayView = new SKAnnotationView();
+	    		final SKAnnotationView toOverlayView = new SKAnnotationView();
 	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination1 : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination1;
-	    		SkobblerImageView toOverlayImageView = new SkobblerImageView(RouteActivity.this, destResourceId, ratio);
+	    		final SkobblerImageView toOverlayImageView = new SkobblerImageView(RouteActivity.this, destResourceId, ratio);
 	    		toOverlayImageView.setLat(destLat);
 	    		toOverlayImageView.setLon(destLon);
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination1;
 	    		if (isFlag) ratio = 2;
 	    		toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
 	    		toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
-	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
-	    		toOverlayView.setView(toOverlayImageView);
-	    		toOverlay.setAnnotationView(toOverlayView);
-	    		if(isFlag) {
-	    			toOverlay.setOffset(new SKScreenPoint(Dimension.dpToPx(1, getResources().getDisplayMetrics()), 0));
+	    		
+	    		if (destOverlayInfo.markerWithShadow==R.drawable.transparent_poi && destOverlayInfo.markerURL!=null) {
+	    			new ImageLoader(RouteActivity.this, destOverlayInfo.markerURL, new ICallback() {
+	    				@Override
+	    				public void run(Object... obj) {
+	    					if (obj[0]==null) return;
+	    					Drawable drawable = (Drawable) obj[0];
+	    					
+	    					destOverlayInfo.drawable = drawable;
+	    					toOverlayImageView.setImageDrawable(drawable);
+	    					toOverlayView.setView(toOverlayImageView);
+	    					toOverlay.setAnnotationView(toOverlayView);
+	    			   		mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_NONE);
+	    				}
+	    			}).execute(true);
 	    		}
-	    		mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
+	    		else {
+	    			toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
+	    			toOverlayView.setView(toOverlayImageView);
+	    			toOverlay.setAnnotationView(toOverlayView);
+	    			mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
+	    		}
 	    	}
     	}
     }
