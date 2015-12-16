@@ -2852,7 +2852,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						rewardString.append(reward / 1000).append("K");
 					}
 					else {
-						rewardString.append(new DecimalFormat("#000.#").format(reward)); 
+						rewardString.append(new DecimalFormat("#0").format(reward)); 
 					}
 					upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
                 }
@@ -2864,7 +2864,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					timeSavingString.append(timeSaving / 1000).append("K");
 				}
 				else {
-					timeSavingString.append(new DecimalFormat("#00").format(timeSaving));
+					timeSavingString.append(new DecimalFormat("#0").format(timeSaving));
 				}
 				timeSavingString.append("min");
 				saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
@@ -2875,7 +2875,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					co2SavingString.append(Double.valueOf(co2Saving / 1000).intValue()).append("K");
 				}
 				else {
-					co2SavingString.append(new DecimalFormat("#000.#").format(co2Saving));
+					co2SavingString.append(new DecimalFormat("#0.#").format(co2Saving));
 				}
 				co2SavingString.append("lbs");
 				co2View.setText(formatMyMetropiaInfo(co2SavingString.toString()));
