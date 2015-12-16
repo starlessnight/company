@@ -114,6 +114,15 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         editTextPassword = (EditText) findViewById(R.id.pwd_box);
         editTextPassword.addTextChangedListener(this);
         
+        SharedPreferences gotoIdLogin=getApplication().getSharedPreferences("getID", 0);
+		if(gotoIdLogin.getString("gotoIdLogin",null)!=null){
+			
+			findViewById(R.id.formTrigger).performClick();
+			editTextUsername.setText(gotoIdLogin.getString("gotoIdLogin",null));
+			gotoIdLogin.edit().putString("gotoIdLogin", null).commit();
+		}
+        
+        
         SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
         String username = loginPrefs.getString(User.USERNAME, "");
         String type = loginPrefs.getString(User.TYPE, "");

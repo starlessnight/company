@@ -362,6 +362,9 @@ public final class UserRegistrationActivity extends FragmentActivity
 		    		
 		    		notificationDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 	    	        	public void onClick(DialogInterface dialog, int id) {
+	    	        		SharedPreferences gotoIdLogin=getApplication().getSharedPreferences("getID", 0);
+	    	        		if( editTextEmail.getText().toString()!=null)
+							gotoIdLogin.edit().putString("gotoIdLogin", editTextEmail.getText().toString()).commit();
 	    	        		onBackPressed();
 	    	        	}
 	    	        });
