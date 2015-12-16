@@ -2246,12 +2246,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     public void checkBackgroundValidation() {
     	File dir = new File(getExternalFilesDir(null), "trip");
     	if (!dir.exists()) return;
-    	
+    	SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
+		if(lock.getBoolean("lock", false)){
     	File[] files = dir.listFiles();
     	for (File f : files) {
     		try {
-    			SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
-				if(lock.getBoolean("lock", false)){
         		String str = FileUtils.readFileToString(f);
         		JSONObject json = new JSONObject(str);
         		JSONObject result = json.optJSONObject("result");
@@ -2261,10 +2260,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		
         		passengerIcon.setTag(result);
         		findViewById(R.id.duo_noti).setVisibility(View.VISIBLE);
-        		}
+        		
     		} catch(Exception e) {Log.e("check background validation failed", e.toString());}
     	}
-    }
+	}
+	}
     
     private RouteRect routeRect;
     
@@ -2400,13 +2400,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	editMenu.setVisibility(!restrictedMode? View.VISIBLE:View.GONE);
     	Integer[] imageResourceIds;
     	if(info.id == 0&&info.potypeid!=1) {
-    		Log.e("info.potypeid!=-1", String.valueOf(info.potypeid));
+    		
     		editMenu.setImageResource(R.drawable.save_menu);
     		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
-    	}
-    	else if(info.potypeid==1){
-    		Log.e("info.potypeid!=-1", String.valueOf(info.potypeid));
+    		
+    	}else if(info.potypeid==1){
+    		
     		editMenu.setVisibility(View.GONE);
+    		
     	}else
     		editMenu.setImageResource(R.drawable.edit_menu);
 			imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};

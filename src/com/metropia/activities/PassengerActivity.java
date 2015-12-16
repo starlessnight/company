@@ -648,7 +648,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							((TextView)PassengerActivity.this.findViewById(R.id.duoTotalPoints)).setText(Integer.toString(uPoints+wheel.bonus));
 							SharedPreferences lock=getApplication().getSharedPreferences("LOCK", 0);
 							SharedPreferences.Editor mEditor=lock.edit();
-							mEditor.putBoolean("lock", true);
+							mEditor.putBoolean("lock", false);
 							mEditor.commit();
 						}
 					}
@@ -1211,5 +1211,15 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 		
 	}
+	@Override
+	public void onBackPressed(){
+		SharedPreferences lock= getApplication().getSharedPreferences("LOCK", 0);
+		SharedPreferences.Editor mEditor=lock.edit();
+		mEditor.putBoolean("lock", true);
+		mEditor.commit();
+		finish();
+		
+	}
+	
 
 }

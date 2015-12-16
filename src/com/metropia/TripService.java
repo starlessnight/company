@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.metropia.activities.CongratulationActivity;
 import com.metropia.activities.LandingActivity2;
 import com.metropia.activities.MainActivity;
@@ -272,7 +273,9 @@ public class TripService extends IntentService {
 			JSONObject obj = new JSONObject(FileUtils.readFileToString(file));
 			obj.getJSONObject("result").put(attr, value);
 			FileUtils.write(file, obj.toString());
-		} catch(Exception e) {Log.e("write trip info failed", e.toString());}
+		}
+		catch(IOException e) {Crashlytics.logException(e);}
+		catch (JSONException e) {Log.e("write trip info failed", e.toString());}
 		
 	}
 	public static void finishTrip(Context context, long rid) {
