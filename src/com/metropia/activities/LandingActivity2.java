@@ -2831,7 +2831,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 	loginPrefsEditor.remove(User.PLAY_SCORE_ANIMATION);
                     
                 	rewardString.append(100);
-                	findViewById(R.id.score_notify_close).setVisibility(View.VISIBLE);
+                	findViewById(R.id.score_notify).setVisibility(View.VISIBLE);
                 	new CountDownTimer(2000, 10) {
 						
 						@Override
