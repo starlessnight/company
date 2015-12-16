@@ -1270,42 +1270,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private void drawODOverlayAndBalloon(Route _route) {
     	if(!OD_DRAWED.getAndSet(true)) {
-	    	int originDrawableId = 0;
-	    	if(EditAddress.CURRENT_LOCATION.equals(originAddr)) {
-	    		originDrawableId = R.drawable.landing_page_current_location;
-	    	}
-	    	else {
-	    		originDrawableId = originOverlayInfo != null ? originOverlayInfo.markerWithShadow : R.drawable.poi_pin_with_shadow;
-	    	}
 	    	
-//	    	SKAnnotation fromOverlay = new SKAnnotation();
-//	    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
-//	    	fromOverlay.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
-//	    	SKAnnotationView fromOverlayView = new SKAnnotationView();
-//	    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
-//	    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originDrawableId, getSizeRatioByZoomLevel()));
-//	    	fromOverlayView.setView(fromOverlayImageView);
-//	    	fromOverlay.setAnnotationView(fromOverlayView);
-//	    	mapView.addAnnotation(fromOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
-//	    	
-//	        SKAnnotation toOverlay = new SKAnnotation();
-//	        toOverlay.setUniqueID(TO_OVERLAY_ID);
-//	    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
-//	    	SKAnnotationView toOverlayView = new SKAnnotationView();
-//	    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
 	    	int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination1 : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination1;
 	    	boolean isFlag = destResourceId == R.drawable.pin_destination1;
-//	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, getSizeRatioByZoomLevel()));
-//	    	toOverlayView.setView(toOverlayImageView);
-//	    	toOverlay.setAnnotationView(toOverlayView);
-//	    	if(isFlag) {
-//	    		toOverlay.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
-//	    	}
-//	    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
+
 	    	routeFirstNode = _route.getFirstNode();
 	    	routeLastNode = _route.getLastNode();
 	    	odSizeRatio.set(0);
-	    	updateODAnnotationSize(getSizeRatioByZoomLevel());
+	    	drawODAnnotation(2);
 	    	
 	    	double originLat = (originOverlayInfo != null && originOverlayInfo.geopoint != null) ? originOverlayInfo.geopoint.getLatitude() : routeFirstNode.getLatitude();
 	    	double originLon = (originOverlayInfo != null && originOverlayInfo.geopoint != null) ? originOverlayInfo.geopoint.getLongitude() : routeFirstNode.getLongitude();
@@ -1316,7 +1288,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	toBalloonAnn.setUniqueID(TO_BALLOON_ID);
 	    	
 	    	toBalloonAnn.setLocation(new SKCoordinate(destLon, destLat));
-	    	int toOffset = isFlag ? 40 : 36;
+	    	int toOffset = isFlag ? 38 : 34;
 	    	toBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
 	    	SKAnnotationView toBalloonView = new SKAnnotationView();
 	        SkobblerImageView toBalloonImage = new SkobblerImageView(RouteActivity.this, 0, 0);
@@ -1344,7 +1316,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        fromBalloonAnn = new SKAnnotation(FROM_BALLOON_ID);
 	        fromBalloonAnn.setUniqueID(FROM_BALLOON_ID);
 	        fromBalloonAnn.setLocation(new SKCoordinate(originLon, originLat));
-	        fromBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
+	        fromBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(28, getResources().getDisplayMetrics())));
 	    	SKAnnotationView fromBalloonView = new SKAnnotationView();
 	    	SkobblerImageView balloon = new SkobblerImageView(RouteActivity.this, 0, 0);
 	    	balloon.setLat(originLat);
@@ -1818,7 +1790,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private SKAnnotation fromOverlay;
     private SKAnnotation toOverlay;
     
-    private void updateODAnnotationSize(int ratio) {
+    private void drawODAnnotation(int ratio) {
     	if(odSizeRatio.get() != ratio) {
     		odSizeRatio.set(ratio);
 	    	if(routeFirstNode != null && originOverlayInfo != null) {
@@ -1853,7 +1825,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		toOverlayImageView.setLat(destLat);
 	    		toOverlayImageView.setLon(destLon);
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination1;
-	    		if (isFlag) ratio = 2;
 	    		toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
 	    		toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
 	    		
@@ -2414,7 +2385,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	public void onMapRegionChanged(SKCoordinateRegion arg0) {
 		if(timeLayout != null && timeLayout.getSelectedTimeButton() != null) {
 			updateIncidentAnnotationSize(getSizeRatioByZoomLevel(), timeLayout.getSelectedDepartureTime());
-			updateODAnnotationSize(getSizeRatioByZoomLevel());
 		}
 	}
 
