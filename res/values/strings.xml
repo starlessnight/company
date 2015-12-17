@@ -173,6 +173,6 @@
     <string name="predictive_destination_tutorial">Been here before, right? Metropia remembers familiar trips and shows a green light bulb for easier reference!</string>
     <string name="calendar_integration_tutorial">Based on the events in your calendar, Metropia will remind you when you should make a reservation to arrive on time.</string>
     
-    <string name="noRouteFound">We are sorry, but we cant\'t find a suitable route right now.\n\nPlease try again later.</string>
+    <string name="noRouteFound">We are sorry, but we can\'t find a suitable route right now.\n\nPlease try again later.</string>
     
 </resources>
